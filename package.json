@@ -1,0 +1,35 @@
+{
+  "name": "webmts-monitor",
+  "version": "1.0.0",
+  "description": "web指标监控",
+  "main": "dist/monitor.cjs.js",
+  "module": "dist/monitor.esm.js",
+  "browser": "dist/monitor.umd.js",
+  "scripts": {
+    "test": "jest",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/biaodigit/webmts-monitor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/biaodigit/webmts-monitor/issues"
+  },
+  "homepage": "https://github.com/biaodigit/webmts-monitor#readme",
+  "devDependencies": {
+    "rollup": "^2.18.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.6.2",
+    "rollup-plugin-terser": "^6.1.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.6"
+  },
+  "dependencies": {
+    "tti-polyfill": "^0.2.2"
+  }
+}
