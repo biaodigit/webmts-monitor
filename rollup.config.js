@@ -33,7 +33,7 @@ const createConfig = ({ output }) => {
         input: 'src/index.ts',
         output: {
             ...output,
-            name: 'webmts-monitor',
+            name: 'Monitor',
             sourcemap: true
         },
         plugins
@@ -57,6 +57,13 @@ export default [
         output: {
             file: pkg.browser,
             format: 'umd'
+        }
+    }),
+    createConfig({
+        output: {
+            file: pkg.iife,
+            format: 'iife',
+            extend: true
         }
     })
 ]

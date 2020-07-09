@@ -11,6 +11,7 @@ interface MonitorOptions {
     firstContentfulPaint?: boolean
     firstInputDelay?: boolean
     timeToInteractive?: boolean,
+    navigationTiming?: boolean
     analyticsHooks?: (options: AnalyticsHooksOptions) => void
 }
 
@@ -18,25 +19,48 @@ interface MonitorConfig extends MonitorOptions {
 
 }
 
+
 interface PerfObservers {
     [metricName: string]: any
 }
 
+interface Metrics {
+    [key: string]: number
+}
+
 interface AnalyticsHooksOptions {
+    metricName: string
+    duration: number
+    data: Metrics
+}
+
+interface LogOptions {
     metricName: string
     duration: number
 }
 
 class Monitor {
     private perf: Performance
-    private config: MonitorConfig
+    private config: MonitorConfig = {
+        firstPaint: false,
+        firstContentfulPaint: false,
+        firstInputDelay: false,
+        timeToInteractive: false,
+        navigationTiming: false
+    }
     private perfObservers: PerfObservers = {}
+    private collectMetrics: { [key: string]: number } = Object.create(null)
     constructor(options: MonitorOptions) {
-        if (!Performance.supportedPerformance) return
+        if (!Performance.supportedPerformance) throw Error("browser doesn't support performance api")
         this.perf = new Performance()
-        this.config = Object.assign({}, this.config, options)
+        this.config = Object.assign(Object.create(null), this.config, options)
 
         if (Performance.supportedPerformanceObserver) this.initPerformanceObserver()
+
+        this.collectMetrics = Object.assign(this.collectMetrics, this.perf.getDefaultTiming())
+
+        if (this.config.navigationTiming) this.logNavigationTiming()
+        this.logMetricsSync(this.collectMetrics)
     }
 
     private initPerformanceObserver(): void {
@@ -92,7 +116,7 @@ class Monitor {
         const { entries, entryName, metricName, metricLog, valueLog } = options
         entries.forEach((entry) => {
             if (this.config[metricName] && entry.name === entryName) {
-                this.logMetrics({ metricName, metricLog, duration: entry[valueLog] })
+                this.logMetrics({ metricName, duration: +(entry[valueLog].toFixed(2)) })
             }
 
             if (entry.name === 'first-contentful-paint' &&
@@ -103,22 +127,46 @@ class Monitor {
         })
     }
 
-    private logMetrics(options: {
-        metricName: string,
-        metricLog: string,
-        duration: number
-    }) {
-        const { metricName, metricLog, duration } = options
-        this.sendMetrics({ metricName, duration })
+    private log(options: LogOptions) {
+        const { metricName, duration } = options
+        console.log(`${metricName}: ${duration}ms`)
     }
 
-    private sendMetrics(options: {
-        metricName: string,
+    private logNavigationTiming() {
+        this.logMetricsSync(this.perf.getNavigationTiming(false))
+
+        window.addEventListener('load', () => {
+            const { pageLoadTime } = this.perf.getNavigationTiming(true)
+            this.logMetrics({ metricName: 'pageLoadTime', duration: pageLoadTime })
+        })
+    }
+
+    private logMetricsSync(data: Metrics) {
+        for (const metricName in data) {
+            const formatDuration = parseFloat(data[metricName].toFixed(2))
+            this.log({ metricName, duration: formatDuration })
+        }
+        this.sendMetrics({ data })
+    }
+
+    private logMetrics(options: {
+        metricName: string
         duration: number
     }) {
         const { metricName, duration } = options
+        const formatDuration = parseFloat(duration.toFixed(2))
+        this.log({ metricName, duration: formatDuration })
+        this.sendMetrics({ metricName, duration: formatDuration })
+    }
+
+    private sendMetrics(options: {
+        metricName?: string
+        duration?: number
+        data?: Metrics
+    }) {
+        const { metricName = '', duration = null, data = {} } = options
         if (this.config.analyticsHooks) {
-            this.config.analyticsHooks({ metricName, duration })
+            this.config.analyticsHooks({ metricName, duration, data })
         }
     }
 }
