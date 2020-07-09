@@ -6,6 +6,14 @@
   "module": "dist/monitor.esm.js",
   "browser": "dist/monitor.umd.js",
   "iife": "dist/monitor.iife.js",
+  "keywords": [
+    "first-paint",
+    "first-contentful-paint",
+    "first-input-delay",
+    "time-to-first-byte",
+    "page-load-time",
+    "white-screen-time"
+  ],
   "scripts": {
     "test": "jest",
     "build": "rollup -c"
