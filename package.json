@@ -15,6 +15,9 @@
     "page-load-time",
     "white-screen-time"
   ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
     "build": "tsc --module commonjs --outDir dist/lib && rollup -c"
