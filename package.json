@@ -6,6 +6,7 @@
   "module": "dist/monitor.esm.js",
   "browser": "dist/monitor.umd.js",
   "iife": "dist/monitor.iife.js",
+  "typings": "dist/types/index.d.ts",
   "keywords": [
     "first-paint",
     "first-contentful-paint",
