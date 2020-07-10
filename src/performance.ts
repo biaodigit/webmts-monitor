@@ -1,20 +1,12 @@
-// import { PerformanceObserver } from "perf_hooks"
-
 export interface PerformanceEntryList {
     getEntries: any;
     getEntriesByName: any;
     getEntriesByType: any;
 }
 
-interface PerformanceObserver {
+export interface PerformanceObserver {
     observer: () => void;
     disconnect: () => void;
-}
-
-interface NavigationOptions {
-    domainLookupEnd: number
-    domainLookupStart: number
-    domComplete: number
 }
 
 
@@ -24,7 +16,7 @@ class Performance {
     private defaultTiming: { [key: string]: any } = Object.create(null)
     private navigationTiming: { [key: string]: any } = Object.create(null)
 
-    static supportedPerformance(): boolean {
+    static supportPerformance(): boolean {
         return (
             window.performance &&
             !!performance.getEntriesByType &&
@@ -32,11 +24,11 @@ class Performance {
         )
     }
 
-    static supportedPerformanceObserver(): boolean {
+    static supportPerformanceObserver(): boolean {
         return (window as any).chrome && 'PerformanceObserver' in window
     }
 
-    public getNavigationTiming(pageEndLoad) {
+    public getNavigationTiming(pageEndLoad:boolean) {
         if (!this.navEntry) return this.navigationTiming
 
         if (pageEndLoad) return {
@@ -45,9 +37,7 @@ class Performance {
 
         this.navigationTiming = Object.assign(this.navigationTiming, {
             dnsLookupTime: this.navEntry.domainLookupEnd - this.navEntry.domainLookupStart, // dns解析时间
-            tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart,          // tcp连接时间
-            domComplete: this.navEntry.domComplete,                                         // dom树解析时间
-            resourceLoadTime: this.navEntry.loadEventStart - this.navEntry.domContentLoadedEventEnd  // 资源加载时间
+            tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart          // tcp连接时间
         })
 
         return this.navigationTiming

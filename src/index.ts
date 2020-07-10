@@ -1,12 +1,13 @@
 import Performance, {
     PerformanceEntryList
 } from './performance'
+import IdleQueue from './idle-queue'
 
 const GET_PAINT = 'paint'
 const GET_RESOURCE = 'resource'
 const GET_FIRSTINPUT = 'first-input'
 
-interface MonitorOptions {
+export interface MonitorOptions {
     firstPaint?: boolean
     firstContentfulPaint?: boolean
     firstInputDelay?: boolean
@@ -15,10 +16,7 @@ interface MonitorOptions {
     analyticsHooks?: (options: AnalyticsHooksOptions) => void
 }
 
-interface MonitorConfig extends MonitorOptions {
-
-}
-
+interface MonitorConfig extends MonitorOptions { }
 
 interface PerfObservers {
     [metricName: string]: any
@@ -28,9 +26,9 @@ interface Metrics {
     [key: string]: number
 }
 
-interface AnalyticsHooksOptions {
+export interface AnalyticsHooksOptions {
     metricName: string
-    duration: number
+    duration: number | null
     data: Metrics
 }
 
@@ -41,6 +39,7 @@ interface LogOptions {
 
 class Monitor {
     private perf: Performance
+    private idleQueue: IdleQueue
     private config: MonitorConfig = {
         firstPaint: false,
         firstContentfulPaint: false,
@@ -51,16 +50,20 @@ class Monitor {
     private perfObservers: PerfObservers = {}
     private collectMetrics: { [key: string]: number } = Object.create(null)
     constructor(options: MonitorOptions) {
-        if (!Performance.supportedPerformance) throw Error("browser doesn't support performance api")
+        if (!Performance.supportPerformance) throw Error("browser doesn't support performance api")
         this.perf = new Performance()
-        this.config = Object.assign(Object.create(null), this.config, options)
+        this.config = Object.assign({}, this.config, options)
 
-        if (Performance.supportedPerformanceObserver) this.initPerformanceObserver()
+        if (Performance.supportPerformanceObserver()) this.initPerformanceObserver()
 
         this.collectMetrics = Object.assign(this.collectMetrics, this.perf.getDefaultTiming())
 
+        this.idleQueue = new IdleQueue()
         if (this.config.navigationTiming) this.logNavigationTiming()
-        this.logMetricsSync(this.collectMetrics)
+
+        this.pushTask(() => {
+            this.logMetricsSync(this.collectMetrics)
+        })
     }
 
     private initPerformanceObserver(): void {
@@ -115,8 +118,10 @@ class Monitor {
     }) {
         const { entries, entryName, metricName, metricLog, valueLog } = options
         entries.forEach((entry) => {
-            if (this.config[metricName] && entry.name === entryName) {
-                this.logMetrics({ metricName, duration: +(entry[valueLog].toFixed(2)) })
+            if (this.config.hasOwnProperty(metricName) && entry.name === entryName) {
+                this.pushTask(() => {
+                    this.logMetrics({ metricName, duration: entry[valueLog] })
+                })
             }
 
             if (entry.name === 'first-contentful-paint' &&
@@ -133,11 +138,15 @@ class Monitor {
     }
 
     private logNavigationTiming() {
-        this.logMetricsSync(this.perf.getNavigationTiming(false))
+        this.pushTask(() => {
+            this.logMetricsSync(this.perf.getNavigationTiming(false))
+        })
 
         window.addEventListener('load', () => {
-            const { pageLoadTime } = this.perf.getNavigationTiming(true)
-            this.logMetrics({ metricName: 'pageLoadTime', duration: pageLoadTime })
+            this.pushTask(() => {
+                const data = this.perf.getNavigationTiming(true)
+                this.logMetricsSync(data)
+            })
         })
     }
 
@@ -167,6 +176,16 @@ class Monitor {
         const { metricName = '', duration = null, data = {} } = options
         if (this.config.analyticsHooks) {
             this.config.analyticsHooks({ metricName, duration, data })
+        }
+    }
+
+    private pushTask(cb: any) {
+        if (this.idleQueue && this.idleQueue.pushTask) {
+            this.idleQueue.pushTask(() => {
+                cb()
+            })
+        } else {
+            cb()
         }
     }
 }

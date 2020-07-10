@@ -9,8 +9,8 @@ const createConfig = ({ output }) => {
     const plugins = [
         resolve(),
         typescript({
-            exclude: 'node_modules/**',
-            typescript: require('typescript')
+            // exclude: 'node_modules/**',
+            // typescript: require('typescript')
         }),
         sourceMaps(),
         terser({
