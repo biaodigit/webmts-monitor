@@ -16,7 +16,8 @@
     "white-screen-time"
   ],
   "files": [
-    "dist"
+    "dist",
+    "package.json"
   ],
   "scripts": {
     "test": "jest",
