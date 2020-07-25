@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsc --module commonjs --outDir dist/lib && rollup -c"
+    "build": "tsc --module commonjs --outDir dist/lib && rollup -c --exports default"
   },
   "repository": {
     "type": "git",
