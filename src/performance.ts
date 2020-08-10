@@ -9,6 +9,11 @@ export interface PerformanceObserver {
     disconnect: () => void;
 }
 
+export interface PerformanceEventTiming extends PerformanceEntry {
+    processingStart: DOMHighResTimeStamp;
+}
+
+
 
 class Performance {
     private observer: any
@@ -56,7 +61,7 @@ class Performance {
 
     public performanceObserver(
         entryType: string,
-        cb: (entries: PerformanceEntry[]) => void
+        cb: (entries: PerformanceEventTiming[]) => void
     ): PerformanceObserver {
         this.observer = new PerformanceObserver((entryList: PerformanceEntryList) => {
             const entries = entryList.getEntries()

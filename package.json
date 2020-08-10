@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsc --module commonjs --outDir dist/lib && rollup -c --exports default"
+    "build": "tsc --module commonjs --outDir dist/lib && rollup -c"
   },
   "repository": {
     "type": "git",
@@ -44,6 +44,7 @@
     "typescript": "^3.9.6"
   },
   "dependencies": {
+    "@types/tti-polyfill": "^0.2.0",
     "tti-polyfill": "^0.2.2"
   }
 }

@@ -8,10 +8,7 @@ import pkg from './package.json'
 const createConfig = ({ output }) => {
     const plugins = [
         resolve(),
-        typescript({
-            // exclude: 'node_modules/**',
-            // typescript: require('typescript')
-        }),
+        typescript(),
         sourceMaps(),
         terser({
             output: {

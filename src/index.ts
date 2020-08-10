@@ -1,5 +1,6 @@
 import Performance, {
-    PerformanceEntryList
+    PerformanceEntryList,
+    PerformanceEventTiming
 } from './performance'
 import IdleQueue from './idle-queue'
 
@@ -8,23 +9,29 @@ const GET_RESOURCE = 'resource'
 const GET_FIRSTINPUT = 'first-input'
 
 export interface MonitorOptions {
+    projectName: string
+    version?: number | string
     firstPaint?: boolean
     firstContentfulPaint?: boolean
     firstInputDelay?: boolean
     timeToInteractive?: boolean,
+    firstMeaningfulPaint?: boolean
+    largestContentfulPaint?: boolean
+    longTask?: boolean
     navigationTiming?: boolean
     analyticsHooks?: (options: AnalyticsHooksOptions) => void
 }
 
 interface MonitorConfig extends MonitorOptions { }
 
-interface PerfObservers {
+interface PerfObserves {
     [metricName: string]: any
 }
 
 interface Metrics {
     [key: string]: number
 }
+
 
 export interface AnalyticsHooksOptions {
     metricName: string
@@ -41,20 +48,25 @@ class Monitor {
     private perf: Performance
     private idleQueue: IdleQueue
     private config: MonitorConfig = {
+        projectName: '',
+        version: 0,
         firstPaint: false,
         firstContentfulPaint: false,
         firstInputDelay: false,
+        firstMeaningfulPaint: false,
+        largestContentfulPaint: false,
         timeToInteractive: false,
+        longTask: false,
         navigationTiming: false
     }
-    private perfObservers: PerfObservers = {}
+    private perfObserves: PerfObserves = {}
     private collectMetrics: { [key: string]: number } = Object.create(null)
     constructor(options: MonitorOptions) {
         if (!Performance.supportPerformance) throw Error("browser doesn't support performance api")
         this.perf = new Performance()
         this.config = Object.assign({}, this.config, options)
 
-        if (Performance.supportPerformanceObserver()) this.initPerformanceObserver()
+        if (Performance.supportPerformanceObserver()) this.initPerformanceObserve()
 
         this.collectMetrics = Object.assign(this.collectMetrics, this.perf.getDefaultTiming())
 
@@ -66,70 +78,134 @@ class Monitor {
         })
     }
 
-    private initPerformanceObserver(): void {
+    private initPerformanceObserve(): void {
         if (this.config.firstPaint || this.config.firstContentfulPaint) {
             this.initFirstPaint()
         }
 
         if (this.config.firstInputDelay) {
-            // todo
-            // this.initFirstInputDelay()
+            this.initFirstInputDelay()
+        }
+
+        if(this.config.largestContentfulPaint){
+            this.initLargestContentfulPaint()
         }
 
         if (this.config.timeToInteractive) {
             // todo
+            // this.initTimeToInteractive()
         }
     }
 
     private initFirstPaint() {
         try {
-            this.perfObservers.firstContentfulPaint = this.perf.performanceObserver(
+            this.perfObserves.firstContentfulPaint = this.perf.performanceObserver(
                 GET_PAINT, this.digestFirstPaintEntries.bind(this)
             )
         } catch (err) {
             // todo
-            // console.error('initFirstPaint failed')
+            this.logWarn('initFirstPaint failed')
         }
     }
 
-    private digestFirstPaintEntries(entries: PerformanceEntry[]) {
-        this.perfObserverCb({
+    private digestFirstPaintEntries(entries: PerformanceEventTiming[]) {
+        this.perfObserveCb({
             entries,
+            entryType: GET_PAINT,
             entryName: 'first-paint',
             metricName: 'firstPaint',
             metricLog: 'First Paint',
-            valueLog: 'startTime'
         })
-        this.perfObserverCb({
+        this.perfObserveCb({
             entries,
+            entryType: GET_PAINT,
             entryName: 'first-contentful-paint',
             metricName: 'firstContentfulPaint',
-            metricLog: 'First Contentful Paint',
-            valueLog: 'startTime'
+            metricLog: 'First Contentful Paint'
         })
     }
 
-    private perfObserverCb(options: {
-        entries: PerformanceEntry[],
-        entryName: string,
+    private initFirstInputDelay() {
+        try {
+            this.perfObserves.firstInputDelay = this.perf.performanceObserver(
+                GET_FIRSTINPUT, this.digestFirstInputDelayEntries.bind(this)
+            )
+        } catch (err) {
+            this.logWarn('initFirstInputDelay failed')
+        }
+    }
+
+    private digestFirstInputDelayEntries(entries: PerformanceEventTiming[]) {
+        this.perfObserveCb({
+            entries,
+            entryType: GET_FIRSTINPUT,
+            metricName: 'firstInputDelay',
+            metricLog: 'First Inpit Delay'
+        })
+    }
+
+    private initLargestContentfulPaint() {
+
+    }
+
+    private initTimeToInteractive() {
+        try {
+            // console.log(ttiPolyfill)
+            // ttiPolyfill.getFirstConsistentlyInteractive().then((tti:any) => {
+            //     this.pushTask(() => {
+            //         this.logMetrics({ metricName: 'timeToInteractive', duration: tti || 0 })
+            //     })
+            // })
+        } catch (err) {
+
+        }
+    }
+
+    private initLongTask() {
+
+    }
+
+    private perfObserveCb(options: {
+        entries: PerformanceEventTiming[],
+        entryType: string
+        entryName?: string,
         metricName: string,
         metricLog: string,
-        valueLog: 'duration' | 'startTime'
+        // valueLog: 'duration' | 'startTime'
     }) {
-        const { entries, entryName, metricName, metricLog, valueLog } = options
+        const { entries, entryType, entryName, metricName, metricLog } = options
         entries.forEach((entry) => {
-            if (this.config.hasOwnProperty(metricName) && entry.name === entryName) {
+            if (this.config.hasOwnProperty(metricName)
+                && Object.is(entry.entryType, GET_PAINT)
+                && Object.is(entry.name, entryName)
+            ) {
+                const duration = entry.startTime
                 this.pushTask(() => {
-                    this.logMetrics({ metricName, duration: entry[valueLog] })
+                    this.logMetrics({ metricName, duration })
                 })
             }
 
-            if (entry.name === 'first-contentful-paint' &&
-                this.perfObservers.firstContentfulPaint
+            if (
+                this.config.hasOwnProperty(metricName)
+                && Object.is(entry.entryType, GET_FIRSTINPUT)
             ) {
-                this.perfObservers.firstContentfulPaint.disconnect()
+                const duration = entry.processingStart - entry.startTime
+                this.pushTask(() => {
+                    this.logMetrics({ metricName, duration })
+                })
+
             }
         })
+        if (Object.is(metricName, 'firstContentfulPaint') &&
+            this.perfObserves.firstContentfulPaint
+        ) {
+            this.perfObserves.firstContentfulPaint.disconnect()
+        }
+
+        if (Object.is(metricName, 'firstInputDelay') &&
+            this.perfObserves.firstInputDelay) {
+            this.perfObserves.firstInputDelay.disconnect()
+        }
     }
 
     private log(options: LogOptions) {
@@ -166,6 +242,10 @@ class Monitor {
         const formatDuration = parseFloat(duration.toFixed(2))
         this.log({ metricName, duration: formatDuration })
         this.sendMetrics({ metricName, duration: formatDuration })
+    }
+
+    private logWarn(message: string) {
+        console.warn(message)
     }
 
     private sendMetrics(options: {
