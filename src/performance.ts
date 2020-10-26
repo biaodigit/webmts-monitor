@@ -1,23 +1,17 @@
-export interface PerformanceEntryList {
-    getEntries: any;
-    getEntriesByName: any;
-    getEntriesByType: any;
+interface PerformanceNavigationEntry extends PerformanceEntry{
+  loadEventStart: number
+  fetchStart: number
+  domainLookupEnd: number
+  domainLookupStart: number
+  connectEnd: number
+  connectStart:number
+  responseStart: number
+  responseEnd: number
+  requestStart:number
 }
-
-export interface PerformanceObserver {
-    observer: () => void;
-    disconnect: () => void;
-}
-
-export interface PerformanceEventTiming extends PerformanceEntry {
-    processingStart: DOMHighResTimeStamp;
-}
-
-
-
 class Performance {
-    private observer: any
-    private navEntry: any = performance.getEntriesByType('navigation')[0]
+    private observer?: PerformanceObserver
+    private navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationEntry
     private defaultTiming: { [key: string]: any } = Object.create(null)
     private navigationTiming: { [key: string]: any } = Object.create(null)
 
@@ -61,10 +55,10 @@ class Performance {
 
     public performanceObserver(
         entryType: string,
-        cb: (entries: PerformanceEventTiming[]) => void
+        cb: (entries: PerformanceEntryList) => void
     ): PerformanceObserver {
-        this.observer = new PerformanceObserver((entryList: PerformanceEntryList) => {
-            const entries = entryList.getEntries()
+        this.observer = new PerformanceObserver((entryList: PerformanceObserverEntryList) => {
+            const entries = entryList.getEntries() 
             cb(entries)
         })
         this.observer.observe({ type: entryType, buffered: true })
