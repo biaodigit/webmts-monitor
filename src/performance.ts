@@ -54,14 +54,14 @@ class Performance {
     }
 
     public performanceObserver(
-        entryType: string,
+        entryTypes: string[],
         cb: (entries: PerformanceEntryList) => void
     ): PerformanceObserver {
         this.observer = new PerformanceObserver((entryList: PerformanceObserverEntryList) => {
-            const entries = entryList.getEntries() 
-            cb(entries)
+          const entries = entryList.getEntries() 
+          cb(entries)
         })
-        this.observer.observe({ type: entryType, buffered: true })
+        this.observer.observe({ entryTypes, buffered: true })
         return this.observer
     }
 }

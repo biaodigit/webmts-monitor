@@ -54,27 +54,27 @@ class Monitor {
 
   private initPerformanceObserve(): void {
     if (this.config.firstPaint || this.config.firstContentfulPaint) {
-      this.initFirstPaint()
+      this.getFirstPaint()
     }
 
     if (this.config.firstInputDelay) {
-      this.initFirstInputDelay()
+      this.getFirstInputDelay()
     }
 
     if (this.config.largestContentfulPaint) {
-      this.initLargestContentfulPaint()
+      // this.initLargestContentfulPaint()
     }
 
     if (this.config.timeToInteractive) {
       // todo
-      this.initTimeToInteractive()
+      this.getTimeToInteractive()
     }
   }
 
-  private initFirstPaint() {
+  private async getFirstPaint() {
     try {
       this.perfObserves.firstContentfulPaint = this.perf.performanceObserver(
-        GET_PAINT,
+        [GET_PAINT],
         this.digestFirstPaintEntries.bind(this)
       )
     } catch (err) {
@@ -100,10 +100,10 @@ class Monitor {
     })
   }
 
-  private initFirstInputDelay() {
+  private getFirstInputDelay() {
     try {
       this.perfObserves.firstInputDelay = this.perf.performanceObserver(
-        GET_FIRSTINPUT,
+        [GET_FIRSTINPUT],
         this.digestFirstInputDelayEntries.bind(this)
       )
     } catch (err) {
@@ -122,13 +122,22 @@ class Monitor {
 
   private initLargestContentfulPaint() {}
 
-  private initTimeToInteractive() {
+  private getTimeToInteractive() {
     try {
-      // this.perfObserves.timeToInteractive = this.perf.performanceObserver(GET_LONGTASK, )
+      this.perfObserves.timeToInteractive = this.perf.performanceObserver(
+        [GET_LONGTASK, GET_RESOURCE],
+        this.digestTimeToInteractiveEntries.bind(this)
+      )
     } catch (err) {}
   }
 
-  private initLongTask() {}
+  private digestTimeToInteractiveEntries(entries: PerformanceEntryList) {
+    ttiInstance(entries).then((duration) => {
+      this.pushTask(() => {
+        this.logMetrics({ metricName: 'timeToInteractive', duration })
+      })
+    })
+  }
 
   private perfObserveCb(options: {
     entries: PerformanceEntryList

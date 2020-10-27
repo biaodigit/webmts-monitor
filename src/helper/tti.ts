@@ -31,15 +31,14 @@ export class TTI {
   private checkTTI() {
     const navigationStart = performance.timing.navigationStart
     let minValue = this.getMinValue()
-    let searchStart =
-      (window as any).chrome && (window as any).chrome.loadTimes
-        ? (window as any).chrome.loadTimes().firstPaintTime * 1000 -
-          navigationStart
-        : 0
+    let searchStart = performance.timing.domContentLoadedEventEnd - navigationStart
+    console.log('search ', searchStart)
+    console.log('minval',minValue)
     let fciVal: number = this.computedFirstConsistentInteractive(
       searchStart,
       minValue
     )
+    console.log('ficVal', fciVal)
     if (fciVal) {
       this.resolveFn!(fciVal)
     }
@@ -49,7 +48,7 @@ export class TTI {
     searchStart: number,
     minValue: number
   ): number {
-    const fciVal =
+    let fciVal =
       this.longtask.length === 0
         ? searchStart
         : this.longtask[this.longtask.length - 1].end
@@ -66,7 +65,7 @@ export class TTI {
   }
 }
 
-export default (entries: PerformanceEntryList) => {
+export default (entries: PerformanceEntryList):Promise<number> => {
   return new Promise((resolve, reject) => {
     const tti = new TTI({ entries })
     resolve(tti.getFirstConsistentlyInteractive())
