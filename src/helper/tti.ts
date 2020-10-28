@@ -5,12 +5,12 @@ interface TTIConfig {
 export class TTI {
   private ob?: PerformanceObserver
   private resolveFn: ((val: number) => void) | null
-  private queue: Array<{ start: number; end: number }>
+  private longtask: Array<{ start: number; end: number }>
   private navEntry: PerformanceTiming = performance.timing
   private timer: ReturnType<typeof setTimeout> | null
   constructor() {
     this.resolveFn = null
-    this.queue = []
+    this.longtask = []
     this.timer = null
     this.registerPerformanceObserver()
   }
@@ -44,18 +44,18 @@ export class TTI {
     this.ob.observe({ entryTypes: ['longtask', 'resource'] })
   }
 
-  private startSchedulingTimerTasks () { 
-     // todo
+  private startSchedulingTimerTasks() {
+    // todo
     this.recheduleTimer(5000)
   }
-  
-  private recheduleTimer (earliestTime:number) {
+
+  private recheduleTimer(earliestTime: number) {
     if (this.timer) {
       clearTimeout(this.timer)
     }
 
     this.timer = setTimeout(() => {
-       this.checkTTI()
+      this.checkTTI()
     }, earliestTime - performance.now())
   }
 
@@ -68,14 +68,19 @@ export class TTI {
       searchStart,
       minValue
     )
-    console.log('fciVal',fciVal)
+
     if (fciVal) {
       this.resolveFn!(fciVal)
     }
   }
 
-  private longTaskFinishedCallback (peformanceEntry:PerformanceEntry) {
-    
+  private longTaskFinishedCallback(performanceEntry: PerformanceEntry) {
+    const taskEndTime = performanceEntry.startTime + performanceEntry.duration
+    this.longtask.push({
+      start: performanceEntry.startTime,
+      end: taskEndTime
+    })
+    this.recheduleTimer(taskEndTime + 5000)
   }
 
   private computedFirstConsistentInteractive(
@@ -83,9 +88,9 @@ export class TTI {
     minValue: number
   ): number {
     let fciVal =
-      this.queue.length === 0
+      this.longtask.length === 0
         ? searchStart
-        : this.queue[this.queue.length - 1].end
+        : this.longtask[this.longtask.length - 1].end
 
     return Math.max(minValue, fciVal)
   }
