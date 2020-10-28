@@ -3,15 +3,16 @@ interface TTIConfig {
 }
 
 export class TTI {
+  private ob?: PerformanceObserver
   private resolveFn: ((val: number) => void) | null
-  private longtask: Array<{ start: number; end: number }>
+  private queue: Array<{ start: number; end: number }>
   private navEntry: PerformanceTiming = performance.timing
-  constructor(config: TTIConfig) {
+  private timer: ReturnType<typeof setTimeout> | null
+  constructor() {
     this.resolveFn = null
-    this.longtask = config.entries.map((entry) => ({
-      start: entry.startTime,
-      end: entry.startTime + entry.duration
-    }))
+    this.queue = []
+    this.timer = null
+    this.registerPerformanceObserver()
   }
 
   public getFirstConsistentlyInteractive(): Promise<number> {
@@ -19,29 +20,62 @@ export class TTI {
       this.resolveFn = resolve
 
       if (document.readyState === 'complete') {
-        this.checkTTI()
+        this.startSchedulingTimerTasks()
       } else {
         window.addEventListener('load', () => {
-          this.checkTTI()
+          this.startSchedulingTimerTasks()
         })
       }
     })
   }
 
+  private registerPerformanceObserver() {
+    this.ob = new PerformanceObserver(
+      (entryList: PerformanceObserverEntryList) => {
+        let entries = entryList.getEntries()
+        for (let entry of entries) {
+          if (entry.entryType === 'longtask') {
+            this.longTaskFinishedCallback(entry)
+          }
+        }
+      }
+    )
+
+    this.ob.observe({ entryTypes: ['longtask', 'resource'] })
+  }
+
+  private startSchedulingTimerTasks () { 
+     // todo
+    this.recheduleTimer(5000)
+  }
+  
+  private recheduleTimer (earliestTime:number) {
+    if (this.timer) {
+      clearTimeout(this.timer)
+    }
+
+    this.timer = setTimeout(() => {
+       this.checkTTI()
+    }, earliestTime - performance.now())
+  }
+
   private checkTTI() {
     const navigationStart = performance.timing.navigationStart
     let minValue = this.getMinValue()
-    let searchStart = performance.timing.domContentLoadedEventEnd - navigationStart
-    console.log('search ', searchStart)
-    console.log('minval',minValue)
+    let searchStart =
+      performance.timing.domContentLoadedEventEnd - navigationStart
     let fciVal: number = this.computedFirstConsistentInteractive(
       searchStart,
       minValue
     )
-    console.log('ficVal', fciVal)
+    console.log('fciVal',fciVal)
     if (fciVal) {
       this.resolveFn!(fciVal)
     }
+  }
+
+  private longTaskFinishedCallback (peformanceEntry:PerformanceEntry) {
+    
   }
 
   private computedFirstConsistentInteractive(
@@ -49,25 +83,22 @@ export class TTI {
     minValue: number
   ): number {
     let fciVal =
-      this.longtask.length === 0
+      this.queue.length === 0
         ? searchStart
-        : this.longtask[this.longtask.length - 1].end
+        : this.queue[this.queue.length - 1].end
 
     return Math.max(minValue, fciVal)
   }
 
   private getMinValue(): number {
-    // if (performance?.timing?.domContentLoadedEventEnd) {
     const { domContentLoadedEventEnd, navigationStart } = this.navEntry
     return domContentLoadedEventEnd - navigationStart
-    // }
-    // return null
   }
 }
 
-export default (entries: PerformanceEntryList):Promise<number> => {
+export default (): Promise<number> => {
   return new Promise((resolve, reject) => {
-    const tti = new TTI({ entries })
+    const tti = new TTI()
     resolve(tti.getFirstConsistentlyInteractive())
   })
 }

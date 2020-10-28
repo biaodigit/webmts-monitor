@@ -1,4 +1,4 @@
-import Performance from './performance'
+import Performance from './core/performance'
 import IdleQueue from './idle-queue'
 import ttiInstance from './helper/tti'
 import {
@@ -124,20 +124,21 @@ class Monitor {
 
   private getTimeToInteractive() {
     try {
-      this.perfObserves.timeToInteractive = this.perf.performanceObserver(
-        [GET_LONGTASK, GET_RESOURCE],
-        this.digestTimeToInteractiveEntries.bind(this)
-      )
+      ttiInstance().then((duration) => {
+        this.pushTask(() => {
+          this.logMetrics({ metricName: 'timeToInteractive', duration })
+        })
+      })
     } catch (err) {}
   }
 
-  private digestTimeToInteractiveEntries(entries: PerformanceEntryList) {
-    ttiInstance(entries).then((duration) => {
-      this.pushTask(() => {
-        this.logMetrics({ metricName: 'timeToInteractive', duration })
-      })
-    })
-  }
+  // private digestTimeToInteractiveEntries() {
+  //   ttiInstance().then((duration) => {
+  //     this.pushTask(() => {
+  //       this.logMetrics({ metricName: 'timeToInteractive', duration })
+  //     })
+  //   })
+  // }
 
   private perfObserveCb(options: {
     entries: PerformanceEntryList
