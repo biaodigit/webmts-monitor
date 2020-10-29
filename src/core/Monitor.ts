@@ -1,13 +1,13 @@
-import Performance from './core/performance'
-import IdleQueue from './idle-queue'
-import ttiInstance from './utils/tti'
+import Performance from '../core/performance'
+import IdleQueue from '../idle-queue'
+import ttiInstance from '../utils/tti'
 import {
   MonitorConfig,
   PerfObserves,
   PerformanceEntryPolyfill,
   LogOptions,
   Metrics
-} from './types'
+} from '../types'
 
 const GET_PAINT = 'paint'
 const GET_RESOURCE = 'resource'

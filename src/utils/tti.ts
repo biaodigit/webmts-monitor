@@ -1,18 +1,20 @@
-interface TTIConfig {
-  entries: PerformanceEntryList
-}
-
-export class TTI {
+class TTI {
   private ob?: PerformanceObserver
   private resolveFn: ((val: number) => void) | null
   private longtask: Array<{ start: number; end: number }>
+  private networkRequests: Array<{ start: number; end: number }>
   private navEntry: PerformanceTiming = performance.timing
   private timer: ReturnType<typeof setTimeout> | null
+  private uniqueId: number
+  private completeRequest: any
   constructor() {
     this.resolveFn = null
     this.longtask = []
     this.timer = null
-    this.registerPerformanceObserver()
+    this.uniqueId = 0
+    this.networkRequests = []
+    this.completeRequest = new Map()
+    this.registerListener()
   }
 
   public getFirstConsistentlyInteractive(): Promise<number> {
@@ -29,6 +31,19 @@ export class TTI {
     })
   }
 
+  private registerListener () {
+    this.patchXMLHTTPRequest(
+      this.beforeInitRequestCb.bind(this),
+      this.afterInitRequestCb.bind(this)
+    )
+    this.patchFetch(
+      this.beforeInitRequestCb.bind(this),
+      this.afterInitRequestCb.bind(this)
+    )
+
+    this.registerPerformanceObserver()
+  }
+
   private registerPerformanceObserver() {
     this.ob = new PerformanceObserver(
       (entryList: PerformanceObserverEntryList) => {
@@ -36,6 +51,8 @@ export class TTI {
         for (let entry of entries) {
           if (entry.entryType === 'longtask') {
             this.longTaskFinishedCallback(entry)
+          } else if (entry.entryType === 'resource') {
+            this.networkFinishedCallback(entry as PerformanceResourceTiming)
           }
         }
       }
@@ -46,6 +63,8 @@ export class TTI {
 
   private startSchedulingTimerTasks() {
     // todo
+    console.log('_incompleteRequestStarts', this.completeRequest)
+    console.log('_networkRequests', this.networkRequests)
     this.recheduleTimer(5000)
   }
 
@@ -83,6 +102,54 @@ export class TTI {
     this.recheduleTimer(taskEndTime + 5000)
   }
 
+  private networkFinishedCallback (performanceEntry: PerformanceResourceTiming) {
+    this.networkRequests.push({
+      start: performanceEntry.fetchStart,
+      end: performanceEntry.responseEnd
+    })
+  }
+
+  private patchXMLHTTPRequest(
+    beforeRequestCb: (id: number) => void,
+    afterRequestCb: (id: number) => void
+  ) {
+    const send = XMLHttpRequest.prototype.send
+    const requestId = this.uniqueId++
+
+    console.log('xhr request', requestId)
+    XMLHttpRequest.prototype.send = function (...args) {
+      beforeRequestCb(requestId)
+      this.addEventListener('onreadystate', () => {
+        if (this.readyState === 4) afterRequestCb(requestId)
+      })
+      return send.apply(this, args)
+    }
+  }
+
+  private patchFetch(
+    beforeRequestCb: (id: number) => void,
+    afterRequestCb: (id: number) => void
+  ) {
+    const originalFetch = fetch
+    const requestId = this.uniqueId++
+
+    window.fetch = (...args) => {
+      return new Promise((resolve, reject) => {
+        beforeRequestCb(requestId)
+        console.log('fetch request', requestId)
+        originalFetch(...args)
+          .then((res) => {
+            afterRequestCb(requestId)
+            resolve(res)
+          })
+          .catch((err) => {
+            afterRequestCb(requestId)
+            reject(err)
+          })
+      })
+    }
+  }
+
   private computedFirstConsistentInteractive(
     searchStart: number,
     minValue: number
@@ -98,6 +165,14 @@ export class TTI {
   private getMinValue(): number {
     const { domContentLoadedEventEnd, navigationStart } = this.navEntry
     return domContentLoadedEventEnd - navigationStart
+  }
+
+  private beforeInitRequestCb(id: number) {
+    this.completeRequest.set(id, performance.now())
+  }
+
+  private afterInitRequestCb(id: number) {
+    this.completeRequest.delete(id)
   }
 }
 

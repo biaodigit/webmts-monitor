@@ -1,15 +1,16 @@
 export interface Monitor {
-  config: MonitorConfig
-  getFCP: () => void
+  getFCP(): number
+  getFID(): number
+  getTTI(): number
 }
 
 export interface PerformanceObserver {
-  observer: () => void;
-  disconnect: () => void;
+  observer(): void
+  disconnect(): void
 }
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
-  readonly processingStart?: DOMHighResTimeStamp;
+  readonly processingStart?: DOMHighResTimeStamp
 }
 
 export interface MonitorConfig {
@@ -18,12 +19,16 @@ export interface MonitorConfig {
   firstPaint?: boolean
   firstContentfulPaint?: boolean
   firstInputDelay?: boolean
-  timeToInteractive?: boolean,
+  timeToInteractive?: boolean
   firstMeaningfulPaint?: boolean
   largestContentfulPaint?: boolean
-  longTask?: boolean
+  timeToFirstByte?:boolean
   navigationTiming?: boolean
-  analyticsHooks?: (config: AnalyticsHooksConfig) => void
+  analyticsHooks?(config: AnalyticsHooksConfig): void
+}
+
+export interface MonitorIntance extends Monitor {
+  (config:MonitorConfig):void
 }
 
 export interface PerfObserves {
@@ -33,7 +38,6 @@ export interface PerfObserves {
 export interface Metrics {
   [key: string]: number
 }
-
 
 interface AnalyticsHooksConfig {
   metricName: string
