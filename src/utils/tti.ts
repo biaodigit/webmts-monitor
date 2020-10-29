@@ -1,8 +1,10 @@
+type Task = Array<{ start: number; end: number }>
+
 class TTI {
   private ob?: PerformanceObserver
   private resolveFn: ((val: number) => void) | null
-  private longtask: Array<{ start: number; end: number }>
-  private networkRequests: Array<{ start: number; end: number }>
+  private longtask: Task
+  private networkRequests: Task
   private navEntry: PerformanceTiming = performance.timing
   private timer: ReturnType<typeof setTimeout> | null
   private uniqueId: number
@@ -31,7 +33,7 @@ class TTI {
     })
   }
 
-  private registerListener () {
+  private registerListener() {
     this.patchXMLHTTPRequest(
       this.beforeInitRequestCb.bind(this),
       this.afterInitRequestCb.bind(this)
@@ -102,7 +104,7 @@ class TTI {
     this.recheduleTimer(taskEndTime + 5000)
   }
 
-  private networkFinishedCallback (performanceEntry: PerformanceResourceTiming) {
+  private networkFinishedCallback(performanceEntry: PerformanceResourceTiming) {
     this.networkRequests.push({
       start: performanceEntry.fetchStart,
       end: performanceEntry.responseEnd
@@ -148,6 +150,44 @@ class TTI {
           })
       })
     }
+  }
+
+  private computedLastKnownNetWorks(completeRequestValues: Array<number>, networkRequests: Task): number {
+    let queue = []
+    for (let request of networkRequests) {
+      queue.push({
+        time: request.start,
+        type: 'requestStart'
+      })
+      queue.push({
+        time: request.end,
+        type: 'responseEnd'
+      })
+    }
+
+    for (let value of completeRequestValues) {
+      queue.push({
+        time: value,
+        type: 'requestStart'
+      })
+    }
+
+    queue.sort((a, b) => a.time - b.time)
+
+    let currentActive = completeRequestValues.length
+    for (let i = queue.length - 1; i >= 0; i--) {
+      const item = queue[i]
+      switch (item.type) {
+        case 'requestStart':
+          currentActive--
+          break;
+        case 'requestEnd':
+          currentActive++
+          if (currentActive > 2) return item.time
+          break;
+      }
+    }
+    return 0
   }
 
   private computedFirstConsistentInteractive(
