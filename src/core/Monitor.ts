@@ -1,7 +1,7 @@
 import IntegratedController from './integratedController'
 import Performance from './performance'
 import { trackerMetrics } from '../helpers/logPerf'
-import { flatPromiseAll } from '../helpers/utils'
+import { flatObjectInArr } from '../helpers/utils'
 import { MonitorConfig, MetricsRes } from '../types'
 
 export default class {
@@ -28,9 +28,9 @@ export default class {
 
     let data = await Promise.all(promiseArr)
     if (config.trackerHooks) {
-      trackerMetrics({ data: flatPromiseAll(data) }, config.trackerHooks)
+      trackerMetrics({ data: flatObjectInArr(data) }, config.trackerHooks)
     } else {
-      return flatPromiseAll(data)
+      return flatObjectInArr(data)
     }
   }
 
