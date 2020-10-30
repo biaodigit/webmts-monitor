@@ -1,5 +1,5 @@
-import { requestIdleCb, cancelIdleCb } from './helpers/idle-callback'
-import { now } from './helpers/now'
+import { requestIdleCb, cancelIdleCb } from '../helpers/idle-callback'
+import { now } from '../helpers/now'
 
 const DEFAULT_MIN_TASK_TIME = 0;
 

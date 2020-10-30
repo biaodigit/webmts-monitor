@@ -29,7 +29,7 @@ new Monitor({
     firstPaint: true,   // 首屏渲染
     firstContentfulPaint: true,  // 首屏内容渲染
     navigationTiming: true,   // 导航指标(dns解析时间 | 首字节时间 | 白屏时间 | 页面加载时间 | 资源加载时间)
-    analyticsHooks: ({ metricName, duration, data }) => {   // 钩子方法
+    trackerHooks: ({ metricName, duration, data }) => {   // 钩子方法
         // ...
     }
 })

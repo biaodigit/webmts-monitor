@@ -56,90 +56,6 @@ import { MonitorIntance } from './types'
 //     })
 //   }
 
-//   private initPerformanceObserve(): void {
-//     if (this.config.firstPaint || this.config.firstContentfulPaint) {
-//       this.getFirstPaint()
-//     }
-
-//     if (this.config.firstInputDelay) {
-//       // this.getFirstInputDelay()
-//     }
-
-//     if (this.config.largestContentfulPaint) {
-//       // this.initLargestContentfulPaint()
-//     }
-
-//     if (this.config.timeToInteractive) {
-//       // todo
-//       // this.getTimeToInteractive()
-//     }
-//   }
-
-//   private async getFirstPaint() {
-//     try {
-//       const { entries, observer } = await this.perf.performanceObserver([
-//         GET_PAINT
-//       ])
-//       this.perfObserves.firstContentfulPaint = observer
-//       let res = Object.create(null)
-//       entries.forEach((entry: PerformanceEntry) => {
-//         res[entry.name] = entry.startTime
-//       })
-//       return res
-//     } catch (err) {
-//       // todo
-//       this.logWarn('initFirstPaint failed')
-//     }
-//   }
-
-//   private digestFirstPaintEntries(entries: PerformanceEntryList) {
-//     this.perfObserveCb({
-//       entries,
-//       entryType: GET_PAINT,
-//       entryName: 'first-paint',
-//       metricName: 'firstPaint',
-//       metricLog: 'First Paint'
-//     })
-//     this.perfObserveCb({
-//       entries,
-//       entryType: GET_PAINT,
-//       entryName: 'first-contentful-paint',
-//       metricName: 'firstContentfulPaint',
-//       metricLog: 'First Contentful Paint'
-//     })
-//   }
-
-//   private getFirstInputDelay() {
-//     // try {
-//     //   this.perfObserves.firstInputDelay = this.perf.performanceObserver(
-//     //     [GET_FIRSTINPUT],
-//     //     this.digestFirstInputDelayEntries.bind(this)
-//     //   )
-//     // } catch (err) {
-//     //   this.logWarn('initFirstInputDelay failed')
-//     // }
-//   }
-
-//   private digestFirstInputDelayEntries(entries: PerformanceEntryList) {
-//     this.perfObserveCb({
-//       entries,
-//       entryType: GET_FIRSTINPUT,
-//       metricName: 'firstInputDelay',
-//       metricLog: 'First Inpit Delay'
-//     })
-//   }
-
-//   private initLargestContentfulPaint() {}
-
-//   private getTimeToInteractive() {
-//     try {
-//       ttiInstance().then((duration) => {
-//         this.pushTask(() => {
-//           this.logMetrics({ metricName: 'timeToInteractive', duration })
-//         })
-//       })
-//     } catch (err) {}
-//   }
 
 //   private perfObserveCb(options: {
 //     entries: PerformanceEntryList
@@ -229,8 +145,8 @@ import { MonitorIntance } from './types'
 //     data?: Metrics
 //   }) {
 //     const { metricName = '', duration = null, data = {} } = options
-//     if (this.config.analyticsHooks) {
-//       this.config.analyticsHooks({ metricName, duration, data })
+//     if (this.config.trackerHooks) {
+//       this.config.trackerHooks({ metricName, duration, data })
 //     }
 //   }
 

@@ -1,5 +1,6 @@
 import IntegratedController from './integratedController'
 import Performance from './performance'
+import { trackerMetrics } from '../helpers/logPerf'
 import { flatPromiseAll } from '../helpers/utils'
 import { MonitorConfig, MetricsRes } from '../types'
 
@@ -12,8 +13,8 @@ export default class {
     this.integratedController = new IntegratedController<MetricsRes>()
   }
 
-  async integratedConfig(config: MonitorConfig): Promise<MetricsRes> {
-    if (Performance.supportPerformanceObserver())
+  async integratedConfig(config: MonitorConfig): Promise<MetricsRes | void> {
+    if (!Performance.supportPerformanceObserver())
       throw Error("browser doesn't support performanceObserver api")
 
     let promiseArr = []
@@ -25,11 +26,11 @@ export default class {
       promiseArr.push(this.integratedController.getTimeToInteractive())
     }
 
-    let results = await Promise.all(promiseArr)
-    if (config.analyticsHooks) {
-      return {}
+    let data = await Promise.all(promiseArr)
+    if (config.trackerHooks) {
+      trackerMetrics({ data: flatPromiseAll(data) }, config.trackerHooks)
     } else {
-      return flatPromiseAll(results)
+      return flatPromiseAll(data)
     }
   }
 

@@ -1,6 +1,6 @@
 import observe from './observe'
 import ttiInstance from '../helpers/tti'
-import {PerformanceEntryPolyfill} from '../types'
+import { PerformanceEntryPolyfill } from '../types'
 
 const GET_PAINT = 'paint'
 const GET_FIRSTINPUT = 'first-input'
@@ -16,7 +16,7 @@ export default class<T> {
     return result as T
   }
 
-  public async getFirstInputDelay (): Promise<T> {
+  public async getFirstInputDelay(): Promise<T> {
     const { entries, ob } = await observe([GET_FIRSTINPUT])
     let result = Object.create(null)
     entries.forEach((entry: PerformanceEntryPolyfill) => {

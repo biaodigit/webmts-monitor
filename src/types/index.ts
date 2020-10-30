@@ -30,7 +30,7 @@ export interface MonitorConfig {
   largestContentfulPaint?: boolean
   timeToFirstByte?: boolean
   navigationTiming?: boolean
-  analyticsHooks?(config: AnalyticsHooksConfig): void
+  trackerHooks?(config: TrackerConfig): void
 }
 
 export interface MonitorIntance extends Monitor {
@@ -41,10 +41,10 @@ export interface PerfObserves {
   [metricName: string]: any
 }
 
-interface AnalyticsHooksConfig {
-  metricName: string
-  duration: number | null
-  data: Metrics
+export interface TrackerConfig {
+  metricName?: string
+  duration?: number
+  data?: MetricsRes
 }
 
 export interface LogOptions {
