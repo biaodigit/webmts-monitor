@@ -1,14 +1,7 @@
 import IntegratedController from './integratedController'
 import Performance from './performance'
 import { flatPromiseAll } from '../helpers/utils'
-import { MonitorConfig, PerformanceInstance, MetricsRes } from '../types'
-
-// 1
-// monitor({
-//   ...
-// })
-
-// monitor.getFCP(...)
+import { MonitorConfig, MetricsRes } from '../types'
 
 export default class {
   private integratedController: IntegratedController<MetricsRes>
