@@ -118,7 +118,6 @@ class TTI {
     const send = XMLHttpRequest.prototype.send
     const requestId = this.uniqueId++
 
-    console.log('xhr request', requestId)
     XMLHttpRequest.prototype.send = function (...args) {
       beforeRequestCb(requestId)
       this.addEventListener('onreadystate', () => {
@@ -138,7 +137,6 @@ class TTI {
     window.fetch = (...args) => {
       return new Promise((resolve, reject) => {
         beforeRequestCb(requestId)
-        console.log('fetch request', requestId)
         originalFetch(...args)
           .then((res) => {
             afterRequestCb(requestId)

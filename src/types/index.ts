@@ -1,7 +1,13 @@
 export interface Monitor {
   getFCP(): number
-  getFID(): number
+  // getFID(): number
   getTTI(): number
+}
+
+export interface PerformanceInstance {
+  performanceObserver(
+    entryTypes: Array<string>
+  ): Promise<{ observer: PerformanceObserver; entries: PerformanceEntryList }>
 }
 
 export interface PerformanceObserver {
@@ -22,21 +28,17 @@ export interface MonitorConfig {
   timeToInteractive?: boolean
   firstMeaningfulPaint?: boolean
   largestContentfulPaint?: boolean
-  timeToFirstByte?:boolean
+  timeToFirstByte?: boolean
   navigationTiming?: boolean
   analyticsHooks?(config: AnalyticsHooksConfig): void
 }
 
 export interface MonitorIntance extends Monitor {
-  (config:MonitorConfig):void
+  (config: MonitorConfig): Promise<MetricsRes>
 }
 
 export interface PerfObserves {
   [metricName: string]: any
-}
-
-export interface Metrics {
-  [key: string]: number
 }
 
 interface AnalyticsHooksConfig {
@@ -49,3 +51,8 @@ export interface LogOptions {
   metricName: string
   duration: number
 }
+
+
+export type Metrics = 'first-paint' | 'first-contentful-paint' | 'mousedown' | 'time-to-interactive'
+
+export type MetricsRes = {[key in Metrics]?:number}

@@ -30,7 +30,7 @@ const createConfig = ({ output }) => {
         input: 'src/index.ts',
         output: {
             ...output,
-            name: 'Monitor',
+            name: 'monitor',
             sourcemap: true
         },
         plugins
