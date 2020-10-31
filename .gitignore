@@ -1,5 +1,6 @@
 dist
 node_modules
+examples
 test.html
 test.js
 package-lock.json

@@ -1,5 +1,5 @@
-import { requestIdleCb, cancelIdleCb } from '../helpers/idle-callback'
-import { now } from '../helpers/now'
+import { requestIdleCb, cancelIdleCb } from '../helpers/idleCallback'
+import { now } from '../helpers/utils'
 
 const DEFAULT_MIN_TASK_TIME = 0;
 
@@ -52,12 +52,12 @@ class IdleQueue {
         if (!this.processing) {
             this.processing = true
             while (this.hasPendingTasks() && !this.shouldYield(deadline, this.defaultMinTaskTime)) {
-                const {task} = this.taskQueue.shift()
+                const { task } = this.taskQueue.shift()
                 task()
             }
             this.processing = false
 
-            if(this.hasPendingTasks()){
+            if (this.hasPendingTasks()) {
                 this.scheduleTasksToRun()
             }
         }

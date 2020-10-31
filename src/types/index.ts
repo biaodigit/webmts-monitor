@@ -1,19 +1,16 @@
 export interface Monitor {
-  getFCP(): number
-  // getFID(): number
-  getTTI(): number
+  getFCP(): MonitorPromise
+
+  getFID(): MonitorPromise
+
+  getTTI(): MonitorPromise
+
+  getTTFB(): MonitorPromise
+
+  getNavTiming(): MonitorPromise
 }
 
-export interface PerformanceInstance {
-  performanceObserver(
-    entryTypes: Array<string>
-  ): Promise<{ observer: PerformanceObserver; entries: PerformanceEntryList }>
-}
-
-export interface PerformanceObserver {
-  observer(): void
-  disconnect(): void
-}
+export interface MonitorPromise extends Promise<MetricsData> { }
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly processingStart?: DOMHighResTimeStamp
@@ -34,17 +31,13 @@ export interface MonitorConfig {
 }
 
 export interface MonitorIntance extends Monitor {
-  (config: MonitorConfig): Promise<MetricsRes>
-}
-
-export interface PerfObserves {
-  [metricName: string]: any
+  (config: MonitorConfig): Promise<MetricsData>
 }
 
 export interface TrackerConfig {
   metricName?: string
   duration?: number
-  data?: MetricsRes
+  data?: MetricsData
 }
 
 export interface LogOptions {
@@ -55,4 +48,4 @@ export interface LogOptions {
 
 export type Metrics = 'first-paint' | 'first-contentful-paint' | 'mousedown' | 'time-to-interactive'
 
-export type MetricsRes = {[key in Metrics]?:number}
+export type MetricsData = { [key in Metrics]?: number }

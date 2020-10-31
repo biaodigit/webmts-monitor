@@ -1,6 +1,19 @@
 import Monitor from './core/Monitor'
 import { extend } from './helpers/utils'
 import { MonitorIntance } from './types'
+
+const createInstance = (): MonitorIntance => {
+  const context = new Monitor()
+  const instance = Monitor.prototype.integratedConfig.bind(context)
+
+  extend(instance, context)
+  return instance as MonitorIntance
+}
+
+const monitor = createInstance()
+
+export default monitor
+
 // import Performance from './core/performance'
 // import IdleQueue from './idle-queue'
 // import ttiInstance from './utils/tti'
@@ -57,50 +70,6 @@ import { MonitorIntance } from './types'
 //   }
 
 
-//   private perfObserveCb(options: {
-//     entries: PerformanceEntryList
-//     entryType: string
-//     entryName?: string
-//     metricName: string
-//     metricLog: string
-//   }) {
-//     const { entries, entryType, entryName, metricName, metricLog } = options
-//     entries.forEach((entry: PerformanceEntryPolyfill) => {
-//       if (
-//         this.config.hasOwnProperty(metricName) &&
-//         Object.is(entry.entryType, GET_PAINT) &&
-//         Object.is(entry.name, entryName)
-//       ) {
-//         const duration = entry.startTime
-//         this.pushTask(() => {
-//           this.logMetrics({ metricName, duration })
-//         })
-//       }
-
-//       if (
-//         this.config.hasOwnProperty(metricName) &&
-//         Object.is(entry.entryType, GET_FIRSTINPUT)
-//       ) {
-//         const duration = entry.processingStart! - entry.startTime
-//         this.pushTask(() => {
-//           this.logMetrics({ metricName, duration })
-//         })
-//       }
-//     })
-//     if (
-//       Object.is(metricName, 'firstContentfulPaint') &&
-//       this.perfObserves.firstContentfulPaint
-//     ) {
-//       this.perfObserves.firstContentfulPaint.disconnect()
-//     }
-
-//     if (
-//       Object.is(metricName, 'firstInputDelay') &&
-//       this.perfObserves.firstInputDelay
-//     ) {
-//       this.perfObserves.firstInputDelay.disconnect()
-//     }
-//   }
 
 //   private log(options: LogOptions) {
 //     const { metricName, duration } = options
@@ -149,28 +118,6 @@ import { MonitorIntance } from './types'
 //       this.config.trackerHooks({ metricName, duration, data })
 //     }
 //   }
-
-//   private pushTask(cb: any) {
-//     if (this.idleQueue && this.idleQueue.pushTask) {
-//       this.idleQueue.pushTask(() => {
-//         cb()
-//       })
-//     } else {
-//       cb()
-//     }
-//   }
 // }
 
 // export default Monitor
-
-const createInstance = (): MonitorIntance => {
-  const context = new Monitor()
-  const instance = Monitor.prototype.integratedConfig.bind(context)
-
-  extend(instance, context)
-  return instance as MonitorIntance
-}
-
-const monitor = createInstance()
-
-export default monitor

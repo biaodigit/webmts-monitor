@@ -1,11 +1,19 @@
-import { TrackerConfig } from '../types'
+import { TrackerConfig, MetricsData } from '../types'
 
 export const trackerMetrics = (
   config: TrackerConfig,
   trackerCb: (config: TrackerConfig) => void
 ) => {
-  const { metricName = '', duration = 0, data = {} } = config
+  const { data = {} } = config
   if (trackerCb) {
-    trackerCb({ metricName, duration, data })
+    trackerCb({ data })
   }
+}
+
+export const logMetrics = () => {
+
+}
+
+export const log = () => {
+
 }

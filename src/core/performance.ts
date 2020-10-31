@@ -38,38 +38,12 @@ class Performance {
     this.navigationTiming = Object.assign(this.navigationTiming, {
       dnsLookupTime:
         this.navEntry.domainLookupEnd - this.navEntry.domainLookupStart, // dns解析时间
-      tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart // tcp连接时间
+      tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart, // tcp连接时间
+      whiteScreenTime: this.navEntry.responseEnd - this.navEntry.fetchStart // 白屏时间
     })
 
     return this.navigationTiming
   }
-
-  public getDefaultTiming() {
-    if (!this.navEntry) return this.defaultTiming
-
-    this.defaultTiming = Object.assign(this.defaultTiming, {
-      timeToFirstByte: this.navEntry.responseStart - this.navEntry.requestStart, // 首字节时间
-      whiteScreenTime: this.navEntry.responseEnd - this.navEntry.fetchStart // 白屏时间
-    })
-
-    return this.defaultTiming
-  }
-
-  // public performanceObserver(
-  //   entryTypes: string[]
-  // ): Promise<{ observer: PerformanceObserver; entries: PerformanceEntryList }> {
-  //   let observer: PerformanceObserver, entries: PerformanceEntryList
-  //   return new Promise((resolve, reject) => {
-  //     observer = new PerformanceObserver(
-  //       (entryList: PerformanceObserverEntryList) => {
-  //         entries = entryList.getEntries()
-  //         console.log(entries)
-  //         resolve({ observer, entries })
-  //       }
-  //     )
-  //     observer.observe({ entryTypes, buffered: true })
-  //   })
-  // }
 }
 
 export default Performance
