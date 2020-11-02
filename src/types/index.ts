@@ -5,12 +5,14 @@ export interface Monitor {
 
   getTTI(): MonitorPromise
 
+  getLCP(): MonitorPromise
+
   getTTFB(): MonitorPromise
 
   getNavTiming(): MonitorPromise
 }
 
-export interface MonitorPromise extends Promise<MetricsData> { }
+export interface MonitorPromise extends Promise<MetricsData> {}
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly processingStart?: DOMHighResTimeStamp
@@ -45,7 +47,10 @@ export interface LogOptions {
   duration: number
 }
 
-
-export type Metrics = 'first-paint' | 'first-contentful-paint' | 'mousedown' | 'time-to-interactive'
+export type Metrics =
+  | 'first-paint'
+  | 'first-contentful-paint'
+  | 'mousedown'
+  | 'time-to-interactive'
 
 export type MetricsData = { [key in Metrics]?: number }

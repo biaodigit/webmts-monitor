@@ -14,51 +14,78 @@ interface PerformanceNavigationEntry extends PerformanceEntry {
   requestStart: number
 }
 
-const GET_PAINT = 'paint'
-const GET_FIRSTINPUT = 'first-input'
+const GET_FCP = 'paint'
+const GET_FID = 'first-input'
+const GET_LCP = 'first-contentful-paint'
 
-export default class <T> {
+const metricMap = new Map([
+  ['first-paint', 'firstPaint'],
+  ['first-contentful-paint', 'firstContentFulPaint'],
+  ['mousedown', 'firstInputDelay']
+])
+ 
+export default class<T> {
   private navEntry = performance.getEntriesByType(
     'navigation'
   )[0] as PerformanceNavigationEntry
   public async getFirstPaint(): Promise<T> {
-    const { entries, ob } = await observe([GET_PAINT])
+    const { entries, ob } = await observe([GET_FCP])
     let result = Object.create(null)
     entries.forEach((entry: PerformanceEntry) => {
-      result[entry.name] = entry.startTime
+      const entryName = metricMap.get(entry.name)
+      if (entryName) result[entryName] = entry.startTime
     })
     ob.disconnect()
     return result
   }
 
   public async getFirstInputDelay(): Promise<T> {
-    const { entries, ob } = await observe([GET_FIRSTINPUT])
+    const { entries, ob } = await observe([GET_FID])
     let result = Object.create(null)
     entries.forEach((entry: PerformanceEntryPolyfill) => {
-      result[entry.name] = entry.processingStart! - entry.startTime
+      const entryName = metricMap.get(entry.name)
+      if (entryName)
+        result[entryName] = entry.processingStart! - entry.startTime
     })
     ob.disconnect()
+    return result
+  }
+
+  public getFirstMeaningfulPaint (): T {
+    let result = Object.create(null)
     return result
   }
 
   public async getTimeToInteractive(): Promise<T> {
     let result = Object.create(null)
     let value = await ttiInstance()
-    result['time-to-interactive'] = value
+    result['timeToInteractive'] = value
+    return result
+  }
+
+  public async getLargestContentFulPaint(): Promise<T> {
+    const { entries, ob } = await observe([GET_LCP])
+    let result = Object.create(null)
+    entries.forEach((entry: PerformanceEntry) => {
+      const entryName = metricMap.get(entry.name)
+      if (entryName) result[entryName] = entry.startTime
+    })
+    ob.disconnect()
     return result
   }
 
   public getTimeToFirstByte(): MetricsData {
     let result = Object.create(null)
     let value = this.navEntry.responseStart - this.navEntry.requestStart
-    result['time-to-first-byte'] = value
+    result['timeToFirstByte'] = value
     return result
   }
 
   public getNavigationTiming(): T {
     let result = Object.create(null)
     result = Object.assign(result, {
-      dnsLookupTime: this.navEntry.domainLookupEnd - this.navEntry.domainLookupStart, // dns解析时间
+      dnsLookupTime:
+        this.navEntry.domainLookupEnd - this.navEntry.domainLookupStart, // dns解析时间
       tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart, // tcp连接时间
       whiteScreenTime: this.navEntry.responseEnd - this.navEntry.fetchStart // 白屏时间
     })

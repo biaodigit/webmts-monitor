@@ -9,7 +9,6 @@ export default (
     ob = new PerformanceObserver(
       (entryList: PerformanceObserverEntryList) => {
         entries = entryList.getEntries()
-        console.log(entries)
         resolve({ ob, entries })
       }
     )

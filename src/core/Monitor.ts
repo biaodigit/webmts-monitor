@@ -1,7 +1,7 @@
 import IntegratedController from './integratedController'
 import Performance from './performance'
 import IdleQueue from './idleQueue'
-import { trackerMetrics } from '../helpers/logPerf'
+import { trackerMetrics, logMetrics } from '../helpers/logPerf'
 import { flatObjectInArr } from '../helpers/utils'
 import { MonitorConfig, MetricsData } from '../types'
 
@@ -30,28 +30,28 @@ export default class {
       trackerHooks
     } = config
 
-    let promiseArr = []
+    let collectMetrics = []
     if (firstPaint || firstContentfulPaint) {
-      promiseArr.push(this.integratedController.getFirstPaint())
+      collectMetrics.push(this.integratedController.getFirstPaint())
     }
 
     if (firstInputDelay) {
-      promiseArr.push(this.integratedController.getFirstInputDelay())
+      collectMetrics.push(this.integratedController.getFirstInputDelay())
     }
 
     if (timeToInteractive) {
-      promiseArr.push(this.integratedController.getTimeToInteractive())
+      collectMetrics.push(this.integratedController.getTimeToInteractive())
     }
 
     if (timeToFirstByte) {
-      promiseArr.push(this.integratedController.getTimeToFirstByte())
+      collectMetrics.push(this.integratedController.getTimeToFirstByte())
     }
 
     if (navigationTiming) {
-      promiseArr.push(this.integratedController.getNavigationTiming())
+      collectMetrics.push(this.integratedController.getNavigationTiming())
     }
 
-    let data = await Promise.all(promiseArr)
+    let data = await Promise.all(collectMetrics)
     if (trackerHooks) {
       trackerMetrics({ data: flatObjectInArr(data) }, trackerHooks)
     } else {

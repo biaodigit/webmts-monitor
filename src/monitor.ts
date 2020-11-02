@@ -14,22 +14,6 @@ const monitor = createInstance()
 
 export default monitor
 
-// import Performance from './core/performance'
-// import IdleQueue from './idle-queue'
-// import ttiInstance from './utils/tti'
-// import {
-//   MonitorConfig,
-//   PerfObserves,
-//   PerformanceEntryPolyfill,
-//   LogOptions,
-//   Metrics
-// } from './types'
-
-// const GET_PAINT = 'paint'
-// const GET_RESOURCE = 'resource'
-// const GET_FIRSTINPUT = 'first-input'
-// const GET_LONGTASK = 'longtask'
-
 // class Monitor {
 //   private perf: Performance
 //   private idleQueue: IdleQueue
