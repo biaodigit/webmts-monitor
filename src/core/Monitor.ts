@@ -31,6 +31,7 @@ export default class {
       firstContentfulPaint,
       firstInputDelay,
       timeToInteractive,
+      firstMeaningfulPaint,
       timeToFirstByte,
       navigationTiming,
       trackerHooks
