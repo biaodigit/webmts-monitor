@@ -1,23 +1,29 @@
 import IntegratedController from './integratedController'
-import Performance from './performance'
+// import Performance from './performance'
 import IdleQueue from './idleQueue'
 import { trackerMetrics, logMetrics } from '../helpers/logPerf'
-import { flatObjectInArr } from '../helpers/utils'
+import {
+  supportPerformance,
+  supportPerformanceObserver,
+  flatObjectInArr
+} from '../helpers/utils'
 import { MonitorConfig, MetricsData } from '../types'
 
 export default class {
   private integratedController: IntegratedController<MetricsData>
   private idleQueue: IdleQueue
   constructor() {
-    if (!Performance.supportPerformance)
+    if (!supportPerformance)
       throw Error("browser doesn't support performance api")
     // const perf = new Performance()
     this.integratedController = new IntegratedController<MetricsData>()
     this.idleQueue = new IdleQueue()
   }
 
-  public async integratedConfig(config: MonitorConfig): Promise<MetricsData | void> {
-    if (!Performance.supportPerformanceObserver())
+  public async integratedConfig(
+    config: MonitorConfig
+  ): Promise<MetricsData | void> {
+    if (!supportPerformanceObserver)
       throw Error("browser doesn't support performanceObserver api")
 
     const {

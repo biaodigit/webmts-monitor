@@ -29,6 +29,7 @@ export interface MonitorConfig {
   largestContentfulPaint?: boolean
   timeToFirstByte?: boolean
   navigationTiming?: boolean
+  markDom?:boolean
   trackerHooks?(config: TrackerConfig): void
 }
 
