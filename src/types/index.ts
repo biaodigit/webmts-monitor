@@ -16,6 +16,7 @@ export interface MonitorPromise extends Promise<MetricsData> {}
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly processingStart?: DOMHighResTimeStamp
+  readonly responseEnd?: number
 }
 
 export interface MonitorConfig {

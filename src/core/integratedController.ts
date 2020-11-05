@@ -1,5 +1,6 @@
 import observe from './observe'
 import ttiInstance from '../helpers/tti'
+import fmpInstance from '../helpers/fmp'
 import { PerformanceEntryPolyfill, MetricsData } from '../types'
 
 interface PerformanceNavigationEntry extends PerformanceEntry {
@@ -45,8 +46,10 @@ export default class<T> {
     return result
   }
 
-  public getFirstMeaningfulPaint(): T {
+  public async getFirstMeaningFulPaint(): Promise<T> {
     let result = Object.create(null)
+    let value = await fmpInstance()
+    result['firstMeaningFulPaint'] = value
     return result
   }
 

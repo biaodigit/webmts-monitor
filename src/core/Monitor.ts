@@ -46,6 +46,10 @@ export default class {
       collectMetrics.push(this.integratedController.getFirstInputDelay())
     }
 
+    if (firstMeaningfulPaint) {
+      collectMetrics.push(this.integratedController.getFirstMeaningFulPaint())
+    }
+
     if (timeToInteractive) {
       collectMetrics.push(this.integratedController.getTimeToInteractive())
     }
@@ -72,6 +76,10 @@ export default class {
 
   public getFID(): Promise<MetricsData> {
     return this.integratedController.getFirstInputDelay()
+  }
+
+  public getFMP (): Promise<MetricsData> {
+    return this.integratedController.getFirstMeaningFulPaint()
   }
 
   public getTTI(): Promise<MetricsData> {
