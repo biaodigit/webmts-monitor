@@ -11,6 +11,8 @@
     "first-paint",
     "first-contentful-paint",
     "first-input-delay",
+    "first-meaningful-paint",
+    "time-to-interactive",
     "time-to-first-byte",
     "page-load-time",
     "white-screen-time"
