@@ -32,6 +32,7 @@ class FMP {
   private entries: { [key: string]: any } = {}
   constructor() {
     this.resolveFn = null
+    // 是否有标记元素
     if (this.checkMarkStatus()) {
       this.activeMark()
     } else {
@@ -67,7 +68,6 @@ class FMP {
       this.entries[entry.name] = entry.responseEnd
     })
     const tagEle = this.getTreeWeight(document.body)
-    console.log(tagEle)
     let maxWeightEle: TagElement | null = null
 
     tagEle!.childList.forEach((child) => {
@@ -79,7 +79,7 @@ class FMP {
         maxWeightEle = child
       }
     })
-    
+
     if (!maxWeightEle) {
       this.resolveFn!(0)
       return
@@ -90,7 +90,7 @@ class FMP {
     this.resolveFn!(this.getElementTiming(els))
   }
 
-  private activeMark() {}
+  private activeMark() { }
 
   private passiveMark() {
     this.getFirstSnapShot()
@@ -120,8 +120,8 @@ class FMP {
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (!child.getAttribute(FMP_TAG)) continue
+
       const elementList = this.getTreeWeight(child)
-      console.log('element list', elementList)
       if (elementList!.weightScore) list.push(elementList!)
     }
     return this.calculateScore(element, list)
@@ -134,7 +134,6 @@ class FMP {
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (!child.getAttribute(FMP_TAG)) {
-        console.log(child, calculateAreaPrecent(child))
         if (!calculateAreaPrecent(child)) continue
         child.setAttribute(FMP_TAG, `${count}`)
       }
@@ -169,26 +168,6 @@ class FMP {
     return result
   }
 
-  // private calculateAreaPrecent (element: Element): number {
-  //   const {
-  //     left,
-  //     right,
-  //     top,
-  //     bottom,
-  //     width,
-  //     height
-  //   } = element.getBoundingClientRect()
-
-  //   if(!width || !height) return 0
-
-  //   const winL = 0, winT = 0, winR = window.innerWidth, winB = window.innerHeight;
-
-  //   const viewWidth = Math.min(right, winR) - Math.max(left, winL)
-  //   const viewHeight = Math.min(bottom, winB) - Math.max(top, winT)
-    
-  //   return (viewWidth * viewHeight) / width*height
-  // }
-
   private filterEls(els: Array<Els>) {
     if (els.length === 1) return els
 
@@ -216,7 +195,7 @@ class FMP {
     })
 
     // 节点得分
-    console.log('inview', element, calculateAreaPrecent(element), width,height,weight)
+    console.log('inview', element, calculateAreaPrecent(element), width, height, weight)
     let weightScore = calculateAreaPrecent(element) ? width * height * weight : 0
 
     let elementList = [{ element, weight, weightScore }]
