@@ -44,6 +44,7 @@ class FMP {
     return new Promise((resolve, reject) => {
       this.resolveFn = resolve
 
+      console.log('status observe', this.statusObserve)
       if (document.readyState === 'complete') {
         this.getCoreElement()
       } else {
