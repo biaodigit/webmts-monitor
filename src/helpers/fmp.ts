@@ -73,6 +73,7 @@ class FMP {
 
     console.log('tagEle', tagEle)
     tagEle!.childList.forEach((child) => {
+      console.log('child', child)
       if (maxWeightEle && maxWeightEle.weightScore) {
         if (child.weightScore > maxWeightEle.weightScore) {
           maxWeightEle = child
