@@ -143,6 +143,7 @@ class FMP {
 
   private getElementTiming(els: Array<Els>): number {
     let result = 0
+    let maxEl = null
     els.forEach((el) => {
       let time = 0
       if (el.weight === 1) {
@@ -154,6 +155,7 @@ class FMP {
         } else if (el.element.tagName === 'SVG') {
           let index = parseInt(el.element.getAttribute(FMP_TAG)!, 10)
           time = this.statusObserve[index].time
+
         }
       } else if (el.weight === 5) {
         if (el.element.tagName === 'VIDEO') {
@@ -163,8 +165,12 @@ class FMP {
           time = this.statusObserve[index].time
         }
       }
-      result = Math.max(result, time)
+      if (time > result) {
+        result = Math.max(result, time)
+        maxEl = el
+      }
     })
+    console.log(maxEl)
     return result
   }
 
@@ -195,7 +201,7 @@ class FMP {
     })
 
     // 节点得分
-    console.log('inview', element, calculateAreaPrecent(element), width, height, weight)
+    // console.log('inview', element, calculateAreaPrecent(element), width, height, weight)
     let weightScore = calculateAreaPrecent(element) ? width * height * weight : 0
 
     let elementList = [{ element, weight, weightScore }]
