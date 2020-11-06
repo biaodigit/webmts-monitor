@@ -1,6 +1,6 @@
 {
   "name": "webmts-monitor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "web指标监控",
   "main": "dist/monitor.cjs.js",
   "module": "dist/monitor.esm.js",
