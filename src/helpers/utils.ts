@@ -10,7 +10,11 @@ export const supportPerformance =
 export const supportPerformanceObserver =
   (window as any).chrome && typeof PerformanceObserver === 'function'
 
+/**
+ * 支持MutationObserver
+ */
 export const supportMutationObserver = typeof MutationObserver === 'function'
+
 /**
  * @return {number} The current date timestamp
  */
@@ -45,12 +49,28 @@ export const extend = <T, U>(to: T, from: U): T & U => {
 }
 
 /**
- * 元素是否在第一视觉外
- * @param target 
+ * 可视区域节点显示面积比例
+ * @param target
  */
-export const inViewPort = (target: Element): boolean => {
-  const winW = window.innerWidth,
-    winH = window.innerHeight
-  const { left, top } = target.getBoundingClientRect()
-  return top > 0 && top < winH && left > 0 && left < winW
+export const calculateAreaPrecent = (target: Element): number => {
+  const {
+    left,
+    right,
+    top,
+    bottom,
+    width,
+    height
+  } = target.getBoundingClientRect()
+
+  if (!width || !height) return 0
+
+  const winL = 0,
+    winT = 0,
+    winR = window.innerWidth,
+    winB = window.innerHeight
+
+  const viewWidth = Math.min(right, winR) - Math.max(left, winL)
+  const viewHeight = Math.min(bottom, winB) - Math.max(top, winT)
+
+  return Math.max(((viewWidth * viewHeight) / (width * height)), 0)
 }

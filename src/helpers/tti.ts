@@ -215,6 +215,6 @@ class TTI {
 }
 
 export default (): Promise<number> => {
-  const tti = new TTI()
-  return Promise.resolve(tti.getFirstConsistentlyInteractive())
+  const instance = new TTI()
+  return Promise.resolve(instance.getFirstConsistentlyInteractive())
 }

@@ -1,4 +1,4 @@
-import { supportMutationObserver, inViewPort } from '../helpers/utils'
+import { supportMutationObserver, calculateAreaPrecent } from '../helpers/utils'
 import { PerformanceEntryPolyfill } from '../types'
 
 interface TagElement {
@@ -9,8 +9,8 @@ interface TagElement {
 }
 
 interface Els {
-  weight: number;
-  weightScore: number;
+  weight: number
+  weightScore: number
   element: Element
 }
 
@@ -22,6 +22,7 @@ const tagWeightMap = new Map([
 ])
 
 const IGNORE_TAG_LIST = ['SCRIPT', 'STYLE', 'META', 'HEAD', 'LINK']
+const FMP_TAG = 'fmp_tag'
 
 class FMP {
   private observe?: MutationObserver
@@ -31,7 +32,11 @@ class FMP {
   private entries: { [key: string]: any } = {}
   constructor() {
     this.resolveFn = null
-    this.register()
+    if (this.checkMarkStatus()) {
+      this.activeMark()
+    } else {
+      this.passiveMark()
+    }
   }
 
   public getFirstMeaningFulPaint(): Promise<number> {
@@ -48,17 +53,20 @@ class FMP {
     })
   }
 
+  private checkMarkStatus(): boolean {
+    return false
+  }
+
   private getCoreElement() {
     if (!supportMutationObserver)
       throw new Error("browser doesn't support mutationObserver api")
 
-    this.observe?.disconnect()
+    this.observe!.disconnect()
 
     performance.getEntries().forEach((entry: PerformanceEntryPolyfill) => {
       this.entries[entry.name] = entry.responseEnd
     })
     const tagEle = this.getTreeWeight(document.body)
-
     console.log(tagEle)
     let maxWeightEle: TagElement | null = null
 
@@ -71,19 +79,25 @@ class FMP {
         maxWeightEle = child
       }
     })
-
+    
     if (!maxWeightEle) {
       this.resolveFn!(0)
+      return
     }
 
     let els = this.filterEls(maxWeightEle!.elementList)
- 
+
+    this.resolveFn!(this.getElementTiming(els))
   }
 
-  private register() {
+  private activeMark() {}
+
+  private passiveMark() {
+    this.getFirstSnapShot()
     this.observe = new MutationObserver(() => {
+      let time = performance.now()
       this.markCount++
-      this.statusObserve.push({ time: performance.now() })
+      this.statusObserve.push({ time })
       this.setTag(document.body, this.markCount)
     })
 
@@ -93,66 +107,98 @@ class FMP {
     })
   }
 
-  private getTreeWeight(element: Element): TagElement | null {
-    if (element) {
-      const children = element.children
-      const list: Array<TagElement> = []
-      for (let i = 0; i < children.length; i++) {
-        let child = children[i]
-        if (!child.getAttribute('fmp_tag')) continue
+  private getFirstSnapShot() {
+    let time = performance.now()
+    this.setTag(document.body, this.markCount)
+    this.statusObserve.push({ time })
+  }
 
-        let elementList = this.getTreeWeight(child)
-        if (elementList!.weightScore) {
-          list.push(elementList!)
-        }
-      }
-      return this.calculateScore(element, list)
+  private getTreeWeight(element: Element): TagElement | null {
+    if (!element) return null
+    const list: Array<TagElement> = [],
+      children = element.children;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      if (!child.getAttribute(FMP_TAG)) continue
+      const elementList = this.getTreeWeight(child)
+      console.log('element list', elementList)
+      if (elementList!.weightScore) list.push(elementList!)
     }
-    return null
+    return this.calculateScore(element, list)
   }
 
   private setTag(element: Element, count: number) {
     const tagName = element.tagName
     if (IGNORE_TAG_LIST.indexOf(tagName) > -1) return
     const children = element.children
-    for (let i = children.length - 1; i >= 0; i--) {
-      const child = children[i],
-        hasTag = child.getAttribute('fmp_tag')
-      if (!hasTag) {
-        if (!inViewPort(child)) continue
-        child.setAttribute('fmp_tag', `${count}`)
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      if (!child.getAttribute(FMP_TAG)) {
+        console.log(child, calculateAreaPrecent(child))
+        if (!calculateAreaPrecent(child)) continue
+        child.setAttribute(FMP_TAG, `${count}`)
       }
       this.setTag(child, count)
     }
   }
 
-  private getElementTiming () {
+  private getElementTiming(els: Array<Els>): number {
+    let result = 0
+    els.forEach((el) => {
+      let time = 0
+      if (el.weight === 1) {
+        let index = parseInt(el.element.getAttribute(FMP_TAG)!, 10)
+        time = this.statusObserve[index].time
+      } else if (el.weight === 2) {
+        if (el.element.tagName === 'IMG') {
+          time = this.entries[(el.element as HTMLImageElement).src]
+        } else if (el.element.tagName === 'SVG') {
+          let index = parseInt(el.element.getAttribute(FMP_TAG)!, 10)
+          time = this.statusObserve[index].time
+        }
+      } else if (el.weight === 5) {
+        if (el.element.tagName === 'VIDEO') {
+          time = this.entries[(el.element as HTMLVideoElement).src]
+        } else if (el.element.tagName === 'CANVAS') {
+          let index = parseInt(el.element.getAttribute(FMP_TAG)!, 10)
+          time = this.statusObserve[index].time
+        }
+      }
+      result = Math.max(result, time)
+    })
+    return result
+  }
+
+  // private calculateAreaPrecent (element: Element): number {
+  //   const {
+  //     left,
+  //     right,
+  //     top,
+  //     bottom,
+  //     width,
+  //     height
+  //   } = element.getBoundingClientRect()
+
+  //   if(!width || !height) return 0
+
+  //   const winL = 0, winT = 0, winR = window.innerWidth, winB = window.innerHeight;
+
+  //   const viewWidth = Math.min(right, winR) - Math.max(left, winL)
+  //   const viewHeight = Math.min(bottom, winB) - Math.max(top, winT)
     
-  }
+  //   return (viewWidth * viewHeight) / width*height
+  // }
 
-  private calculateAreaPrecent(element: Element): number {
-    const {
-      left,
-      right,
-      top,
-      bottom,
-      width,
-      height
-    } = element.getBoundingClientRect()
-
-    return 0
-  }
-
-  private filterEls (els:Array<Els>) {
+  private filterEls(els: Array<Els>) {
     if (els.length === 1) return els
-    
-    let sum = 0;
-    els.forEach(el => {
+
+    let sum = 0
+    els.forEach((el) => {
       sum += el.weightScore
     })
 
     let avg = sum / els.length
-    return els.filter(el => el.weightScore > avg)
+    return els.filter((el) => el.weightScore > avg)
   }
 
   private calculateScore(
@@ -165,24 +211,25 @@ class FMP {
       childScore = 0
 
     // 子节点总得分
-    list.forEach((item) => {
-      childScore += item.weightScore
+    list.forEach((el) => {
+      childScore += el.weightScore
     })
 
     // 节点得分
-    let weightScore = inViewPort(element) ? width * height * weight! : 0
+    console.log('inview', element, calculateAreaPrecent(element), width,height,weight)
+    let weightScore = calculateAreaPrecent(element) ? width * height * weight : 0
 
     let elementList = [{ element, weight, weightScore }]
 
     // 如果子节点总分大于节点得分，核心节点在子节点中
     if (
-      weightScore * this.calculateAreaPrecent(element) < childScore ||
+      weightScore * calculateAreaPrecent(element) < childScore ||
       weightScore === 0
     ) {
       weightScore = childScore
       elementList = []
-      list.forEach((item) => {
-        elementList = elementList.concat(item.elementList)
+      list.forEach((el) => {
+        elementList = elementList.concat(el.elementList)
       })
     }
     return {
@@ -196,6 +243,5 @@ class FMP {
 
 export default async (): Promise<number> => {
   const instance = new FMP()
-  // const element = instance.getFirstMeaningFulPaint()
   return Promise.resolve(instance.getFirstMeaningFulPaint())
 }
