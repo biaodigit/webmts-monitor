@@ -217,6 +217,8 @@ class FMP {
         elementList = elementList.concat(el.elementList)
       })
     }
+
+    element.setAttribute('fmp_weight', `${weightScore}`)
     return {
       weightScore,
       elementList,
