@@ -71,6 +71,7 @@ class FMP {
     const tagEle = this.getTreeWeight(document.body)
     let maxWeightEle: TagElement | null = null
 
+    console.log('tagEle', tagEle)
     tagEle!.childList.forEach((child) => {
       if (maxWeightEle && maxWeightEle.weightScore) {
         if (child.weightScore > maxWeightEle.weightScore) {
@@ -81,6 +82,7 @@ class FMP {
       }
     })
 
+    console.log('max weight ele', maxWeightEle)
     if (!maxWeightEle) {
       this.resolveFn!(0)
       return
