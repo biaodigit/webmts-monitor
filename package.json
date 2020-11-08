@@ -47,9 +47,5 @@
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^2.0.0",
     "typescript": "^3.9.6"
-  },
-  "dependencies": {
-    "@types/tti-polyfill": "^0.2.0",
-    "tti-polyfill": "^0.2.2"
   }
 }
