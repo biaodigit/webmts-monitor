@@ -1,9 +1,13 @@
 export interface Monitor {
+  integratedConfig(config: MonitorConfig): MonitorPromise
+
   getFCP(): MonitorPromise
 
   getFID(): MonitorPromise
 
   getTTI(): MonitorPromise
+
+  getFMP(): MonitorPromise
 
   getLCP(): MonitorPromise
 
@@ -12,7 +16,7 @@ export interface Monitor {
   getNavTiming(): MonitorPromise
 }
 
-export interface MonitorPromise extends Promise<MetricsData> {}
+export interface MonitorPromise extends Promise<MetricsData> { }
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly processingStart?: DOMHighResTimeStamp
@@ -30,7 +34,7 @@ export interface MonitorConfig {
   largestContentfulPaint?: boolean
   timeToFirstByte?: boolean
   navigationTiming?: boolean
-  markDom?:boolean
+  markDom?: boolean
   trackerHooks?(config: TrackerConfig): void
 }
 
@@ -50,9 +54,15 @@ export interface LogOptions {
 }
 
 export type Metrics =
-  | 'first-paint'
-  | 'first-contentful-paint'
-  | 'mousedown'
-  | 'time-to-interactive'
+  | 'firstPaint'
+  | 'firstContentFulPaint'
+  | 'firstInputDelay'
+  | 'firstMeaningFulPaint'
+  | 'timeToInteractive'
+  | 'largestContentFulPaint'
+  | 'timeToFirstByte'
+  | 'tcpConnectTime'
+  | 'dnsLookupTime'
+  | 'whiteScreenTime'
 
 export type MetricsData = { [key in Metrics]?: number }

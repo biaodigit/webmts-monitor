@@ -26,7 +26,7 @@ const entryNameMap = new Map([
   ['largest-contentful-paint', 'largestContentFulPaint']
 ])
 
-export default class<T> {
+export default class <T> {
   private navEntry = performance.getEntriesByType(
     'navigation'
   )[0] as PerformanceNavigationEntry
@@ -86,7 +86,7 @@ export default class<T> {
     const { entries, ob } = await observe([type])
     let result = Object.create(null)
     entries.forEach((entry: PerformanceEntry) => {
-      const entryName = entryNameMap.get(entry.name)
+      const entryName = entryNameMap.get(entry.name || entry.entryType)
       if (entryName) result[entryName] = entry.startTime
     })
     ob.disconnect()

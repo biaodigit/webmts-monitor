@@ -33,7 +33,7 @@ class FMP {
   constructor() {
     this.resolveFn = null
     // 是否有标记元素
-    if (this.checkMarkStatus()) {
+    if (this.checkMarkStatus(document.body)) {
       this.activeMark()
     } else {
       this.passiveMark()
@@ -44,7 +44,6 @@ class FMP {
     return new Promise((resolve, reject) => {
       this.resolveFn = resolve
 
-      console.log('status observe', this.statusObserve)
       if (document.readyState === 'complete') {
         this.getCoreElement()
       } else {
@@ -55,7 +54,13 @@ class FMP {
     })
   }
 
-  private checkMarkStatus(): boolean {
+  private checkMarkStatus(element: Element): boolean {
+    if (element.getAttribute(FMP_TAG)) return true
+    const children = element.children;
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      if (this.checkMarkStatus(child)) return true
+    }
     return false
   }
 
@@ -71,9 +76,7 @@ class FMP {
     const tagEle = this.getTreeWeight(document.body)
     let maxWeightEle: TagElement | null = null
 
-    console.log('tagEle', tagEle)
     tagEle!.childList.forEach((child) => {
-      console.log('child', child)
       if (maxWeightEle && maxWeightEle.weightScore) {
         if (child.weightScore > maxWeightEle.weightScore) {
           maxWeightEle = child
@@ -83,7 +86,6 @@ class FMP {
       }
     })
 
-    console.log('max weight ele', maxWeightEle)
     if (!maxWeightEle) {
       this.resolveFn!(0)
       return
@@ -147,7 +149,6 @@ class FMP {
 
   private getElementTiming(els: Array<Els>): number {
     let result = 0
-    let maxEl = null
     els.forEach((el) => {
       let time = 0
       if (el.weight === 1) {
@@ -169,12 +170,8 @@ class FMP {
           time = this.statusObserve[index].time
         }
       }
-      if (time > result) {
-        result = Math.max(result, time)
-        maxEl = el
-      }
+      result = Math.max(result, time)
     })
-    console.log(maxEl)
     return result
   }
 
@@ -204,15 +201,14 @@ class FMP {
       childScore += el.weightScore
     })
 
-    // 节点得分
-    // console.log('inview', element, calculateAreaPrecent(element), width, height, weight)
-    let weightScore = calculateAreaPrecent(element) ? width * height * weight : 0
+    // 节点得分 (宽 * 高 * 权重 * 视图面积比例)
+    let weightScore = calculateAreaPrecent(element) ? width * height * weight * calculateAreaPrecent(element) : 0
 
     let elementList = [{ element, weight, weightScore }]
 
     // 如果子节点总分大于节点得分，核心节点在子节点中
     if (
-      weightScore * calculateAreaPrecent(element) < childScore ||
+      weightScore < childScore ||
       weightScore === 0
     ) {
       weightScore = childScore

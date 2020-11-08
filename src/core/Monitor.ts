@@ -1,5 +1,4 @@
 import IntegratedController from './integratedController'
-// import Performance from './performance'
 import IdleQueue from './idleQueue'
 import { trackerMetrics, logMetrics } from '../helpers/logPerf'
 import {
@@ -32,12 +31,14 @@ export default class {
       firstInputDelay,
       timeToInteractive,
       firstMeaningfulPaint,
+      largestContentfulPaint,
       timeToFirstByte,
       navigationTiming,
       trackerHooks
     } = config
 
-    let collectMetrics = []
+    const collectMetrics = []
+
     if (firstPaint || firstContentfulPaint) {
       collectMetrics.push(this.integratedController.getFirstPaint())
     }
@@ -54,6 +55,10 @@ export default class {
       collectMetrics.push(this.integratedController.getTimeToInteractive())
     }
 
+    if (largestContentfulPaint) {
+      collectMetrics.push(this.integratedController.getLargestContentFulPaint())
+    }
+
     if (timeToFirstByte) {
       collectMetrics.push(this.integratedController.getTimeToFirstByte())
     }
@@ -64,7 +69,9 @@ export default class {
 
     let data = await Promise.all(collectMetrics)
     if (trackerHooks) {
-      trackerMetrics({ data: flatObjectInArr(data) }, trackerHooks)
+      this.pushTask(() => {
+        trackerMetrics({ data: flatObjectInArr(data) }, trackerHooks)
+      })
     } else {
       return flatObjectInArr(data)
     }
@@ -78,7 +85,7 @@ export default class {
     return this.integratedController.getFirstInputDelay()
   }
 
-  public getFMP (): Promise<MetricsData> {
+  public getFMP(): Promise<MetricsData> {
     return this.integratedController.getFirstMeaningFulPaint()
   }
 
@@ -88,6 +95,10 @@ export default class {
 
   public getTTFB(): Promise<MetricsData> {
     return Promise.resolve(this.integratedController.getTimeToFirstByte())
+  }
+
+  public getLCP(): Promise<MetricsData> {
+    return this.integratedController.getLargestContentFulPaint()
   }
 
   public getNavTiming(): Promise<MetricsData> {

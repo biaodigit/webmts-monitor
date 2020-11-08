@@ -48,9 +48,12 @@ monitor({
 
 **开放式 api**
 
+- monitor.integratedConfig
 - monitor.getFCP
 - monitor.getFID
+- monitor.getFMP
 - monitor.getTTI
+- monitor.getLCP
 - monitor.getTTFB
 - monitor.getNavTiming
 
@@ -71,13 +74,19 @@ monitor.getFCP().then(console.log);
   // 首次输入时长
   firstInputDelay: false
 
+  // 首屏核心节点渲染时长
+  firstMeaningfulPaint: false
+
   // 首次可交互时长
   timeToInteractive: false
+
+  // 首屏最大节点渲染时长
+  largetContentfulPaint: false
 
   // 首字节等待时长
   timeToFirstByte: false
 
-  // 导航指标(dns解析时间 | 首字节时间 | 白屏时间 | 页面加载时间 | 资源加载时间)
+  // 导航指标(dns解析时间 | 白屏时间 | tcp连接时间)
   navigationTiming: false,
 
   // 追踪钩子
