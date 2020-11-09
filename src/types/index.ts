@@ -34,7 +34,7 @@ export interface MonitorConfig {
   largestContentfulPaint?: boolean
   timeToFirstByte?: boolean
   navigationTiming?: boolean
-  markDom?: boolean
+  log?:boolean
   trackerHooks?(config: TrackerConfig): void
 }
 
@@ -43,8 +43,8 @@ export interface MonitorIntance extends Monitor {
 }
 
 export interface TrackerConfig {
-  metricName?: string
-  duration?: number
+  projectName: string
+  version?: string | number
   data?: MetricsData
 }
 

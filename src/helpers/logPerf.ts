@@ -1,23 +1,26 @@
-import { TrackerConfig, MetricsData } from '../types'
-
-const formatNum2Str = (value: number): string => `${parseInt(value.toFixed(2))}ms`
+import { TrackerConfig, MetricsData, Metrics } from '../types'
 
 export const trackerMetrics = (
   config: TrackerConfig,
   trackerCb: (config: TrackerConfig) => void
 ) => {
-  const { data = {} } = config
+  const { projectName, version = 0, data = {} } = config
   if (trackerCb) {
-    trackerCb({ data })
+    trackerCb({ projectName, version, data })
   }
 }
 
-export const logMetrics = (data:MetricsData) => {
-  for (let key in data) {
-     
-   }
+export const logMetrics = (
+  config: TrackerConfig,
+  cb: (config: TrackerConfig) => void
+) => {
+  const { data } = config
+  trackerMetrics(config, cb)
+  log(data!)
 }
 
-export const log = (name: string, value: number) => {
-   
+export const log = (data: MetricsData) => {
+  for (let key in data) {
+    console.log(`monitor ${key}: ${data[key as Metrics]}ms`)
+  }
 }

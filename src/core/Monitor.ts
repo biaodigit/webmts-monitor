@@ -14,7 +14,7 @@ export default class {
   constructor() {
     if (!supportPerformance)
       throw Error("browser doesn't support performance api")
-    // const perf = new Performance()
+    
     this.integratedController = new IntegratedController<MetricsData>()
     this.idleQueue = new IdleQueue()
   }
@@ -26,6 +26,8 @@ export default class {
       throw Error("browser doesn't support performanceObserver api")
 
     const {
+      projectName,
+      version,
       firstPaint,
       firstContentfulPaint,
       firstInputDelay,
@@ -34,6 +36,7 @@ export default class {
       largestContentfulPaint,
       timeToFirstByte,
       navigationTiming,
+      log,
       trackerHooks
     } = config
 
@@ -68,9 +71,14 @@ export default class {
     }
 
     let data = await Promise.all(collectMetrics)
+
     if (trackerHooks) {
       this.pushTask(() => {
-        trackerMetrics({ data: flatObjectInArr(data) }, trackerHooks)
+        logMetrics({
+          projectName,
+          version,
+          data: flatObjectInArr(data)
+        }, trackerHooks)
       })
     } else {
       return flatObjectInArr(data)
