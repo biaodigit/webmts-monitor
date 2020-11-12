@@ -6,15 +6,17 @@ import {
   supportPerformanceObserver,
   flatObjectInArr
 } from '../helpers/utils'
+import globalListener from '../helpers/globalListener'
 import { MonitorConfig, MetricsData } from '../types'
 
 export default class {
   private integratedController: IntegratedController<MetricsData>
   private idleQueue: IdleQueue
+  private defaultResult?: { projectName: string; version: number | string }
   constructor() {
     if (!supportPerformance)
       throw Error("browser doesn't support performance api")
-    
+
     this.integratedController = new IntegratedController<MetricsData>()
     this.idleQueue = new IdleQueue()
   }
@@ -40,6 +42,10 @@ export default class {
       trackerHooks
     } = config
 
+    this.defaultResult = {
+      projectName,
+      version: version || ''
+    }
     const collectMetrics = []
 
     if (firstPaint || firstContentfulPaint) {
@@ -73,20 +79,26 @@ export default class {
     let data = await Promise.all(collectMetrics)
 
     if (trackerHooks) {
+      const trackerCb = () => {
+        logMetrics(
+          Object.assign({}, this.defaultResult, {
+            data: flatObjectInArr(data)
+          }),
+          trackerHooks
+        )
+      }
       this.pushTask(() => {
-        logMetrics({
-          projectName,
-          version,
-          data: flatObjectInArr(data)
-        }, trackerHooks)
+        trackerCb()
       })
+
+      globalListener(trackerCb)
     } else {
       return flatObjectInArr(data)
     }
   }
 
   public getFCP(): Promise<MetricsData> {
-    return this.integratedController.getFirstPaint()
+    return this.transformResult(this.integratedController.getFirstPaint)
   }
 
   public getFID(): Promise<MetricsData> {
@@ -111,6 +123,11 @@ export default class {
 
   public getNavTiming(): Promise<MetricsData> {
     return Promise.resolve(this.integratedController.getNavigationTiming())
+  }
+
+  private async transformResult(fn: () => Promise<MetricsData>) {
+    let data = await fn()
+    return Object.assign({}, this.defaultResult, data)
   }
 
   private pushTask(cb: any) {
