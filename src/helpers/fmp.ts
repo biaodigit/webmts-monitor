@@ -65,7 +65,7 @@ class FMP {
   }
 
   private getCoreElement() {
-    if (!supportMutationObserver)
+    if (!supportMutationObserver())
       throw new Error("browser doesn't support mutationObserver api")
 
     this.observe!.disconnect()

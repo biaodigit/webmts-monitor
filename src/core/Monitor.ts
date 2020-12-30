@@ -14,7 +14,7 @@ export default class {
   private idleQueue: IdleQueue
   private defaultResult?: { projectName: string; version: number | string }
   constructor() {
-    if (!supportPerformance)
+    if (!supportPerformance())
       throw Error("browser doesn't support performance api")
 
     this.integratedController = new IntegratedController<MetricsData>()
@@ -24,7 +24,7 @@ export default class {
   public async integratedConfig(
     config: MonitorConfig
   ): Promise<MetricsData | void> {
-    if (!supportPerformanceObserver)
+    if (!supportPerformanceObserver())
       throw Error("browser doesn't support performanceObserver api")
 
     const {

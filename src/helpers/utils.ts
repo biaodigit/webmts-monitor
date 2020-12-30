@@ -1,19 +1,21 @@
 /**
  * 支持Performance对象
  */
-export const supportPerformance =
-  window.performance && !!performance.getEntriesByType && !!performance.mark
+export const supportPerformance = () =>
+  window.performance &&
+  !!window.performance.getEntriesByType &&
+  !!window.performance.mark
 
 /**
  * 支持PerformanceObsever
  */
-export const supportPerformanceObserver =
-  (window as any).chrome && typeof PerformanceObserver === 'function'
+export const supportPerformanceObserver = () =>
+  (window as any).chrome && 'Performance' in window
 
 /**
  * 支持MutationObserver
  */
-export const supportMutationObserver = typeof MutationObserver === 'function'
+export const supportMutationObserver = () => 'MutationObserver' in window
 
 /**
  * @return {number} The current date timestamp
@@ -59,18 +61,30 @@ export const calculateAreaPrecent = (target: Element): number => {
     top,
     bottom,
     width,
-    height
+    height,
   } = target.getBoundingClientRect()
 
   if (!width || !height) return 0
 
-  const winL = 0,
-    winT = 0,
-    winR = window.innerWidth,
+  const  winR = window.innerWidth,
     winB = window.innerHeight
 
-  const viewWidth = Math.min(right, winR) - Math.max(left, winL)
-  const viewHeight = Math.min(bottom, winB) - Math.max(top, winT)
+  const viewWidth =
+    left >= 0 && right >= 0
+      ? width
+      : left < 0 && right >= 0
+      ? winR - right
+      : left >= 0 && right < 0
+      ? winR - left
+      : width
+  const viewHeight =
+    top >= 0 && bottom >= 0
+      ? height
+      : top < 0 && bottom >= 0
+      ? winB - bottom
+      : top >= 0 && bottom < 0
+      ? winB - top
+      : height
 
-  return Math.max(((viewWidth * viewHeight) / (width * height)), 0)
+  return Math.max((viewWidth * viewHeight) / (width * height), 0)
 }
