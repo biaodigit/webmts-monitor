@@ -12,4 +12,4 @@ const createInstance = (): MonitorIntance => {
 
 const monitor = createInstance()
 
-export default monitor;
+export default monitor

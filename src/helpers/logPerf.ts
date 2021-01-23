@@ -2,7 +2,7 @@ import { TrackerConfig, MetricsData, Metrics } from '../types'
 
 export const trackerMetrics = (
   config: TrackerConfig,
-  trackerCb: (config: TrackerConfig) => void
+  trackerCb: (config: TrackerConfig) => void,
 ) => {
   const { projectName, version = 0, data = {} } = config
   if (trackerCb) {
@@ -12,7 +12,7 @@ export const trackerMetrics = (
 
 export const logMetrics = (
   config: TrackerConfig,
-  cb: (config: TrackerConfig) => void
+  cb: (config: TrackerConfig) => void,
 ) => {
   const { data } = config
   trackerMetrics(config, cb)

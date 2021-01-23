@@ -1,6 +1,6 @@
 import observe from './observe'
-import ttiInstance from '../helpers/tti'
-import fmpInstance from '../helpers/fmp'
+import ttiInstance from './tti'
+import fmpInstance from './fmp'
 import { PerformanceEntryPolyfill, MetricsData } from '../types'
 
 interface PerformanceNavigationEntry extends PerformanceEntry {
@@ -23,12 +23,12 @@ const entryNameMap = new Map([
   ['first-paint', 'firstPaint'],
   ['first-contentful-paint', 'firstContentFulPaint'],
   ['mousedown', 'firstInputDelay'],
-  ['largest-contentful-paint', 'largestContentFulPaint']
+  ['largest-contentful-paint', 'largestContentFulPaint'],
 ])
 
-export default class <T> {
+export default class<T> {
   private navEntry = performance.getEntriesByType(
-    'navigation'
+    'navigation',
   )[0] as PerformanceNavigationEntry
   public async getFirstPaint(): Promise<T> {
     return this.perfTypeWithData(GET_FCP)
@@ -77,7 +77,7 @@ export default class <T> {
       dnsLookupTime:
         this.navEntry.domainLookupEnd - this.navEntry.domainLookupStart, // dns解析时间
       tcpConnectTime: this.navEntry.connectEnd - this.navEntry.connectStart, // tcp连接时间
-      whiteScreenTime: this.navEntry.responseEnd - this.navEntry.fetchStart // 白屏时间
+      whiteScreenTime: this.navEntry.responseEnd - this.navEntry.fetchStart, // 白屏时间
     })
     return result
   }

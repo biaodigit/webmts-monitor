@@ -18,7 +18,7 @@ const tagWeightMap = new Map([
   ['VIDEO', 5],
   ['CANVAS', 5],
   ['IMG', 2],
-  ['SVG', 2]
+  ['SVG', 2],
 ])
 
 const IGNORE_TAG_LIST = ['SCRIPT', 'STYLE', 'META', 'HEAD', 'LINK']
@@ -56,7 +56,7 @@ class FMP {
 
   private checkMarkStatus(element: Element): boolean {
     if (element.getAttribute(FMP_TAG)) return true
-    const children = element.children;
+    const children = element.children
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (this.checkMarkStatus(child)) return true
@@ -96,7 +96,7 @@ class FMP {
     this.resolveFn!(this.getElementTiming(els))
   }
 
-  private activeMark() { }
+  private activeMark() {}
 
   private passiveMark() {
     this.getFirstSnapShot()
@@ -109,7 +109,7 @@ class FMP {
 
     this.observe.observe(document, {
       childList: true,
-      subtree: true
+      subtree: true,
     })
   }
 
@@ -122,7 +122,7 @@ class FMP {
   private getTreeWeight(element: Element): TagElement | null {
     if (!element) return null
     const list: Array<TagElement> = [],
-      children = element.children;
+      children = element.children
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (!child.getAttribute(FMP_TAG)) continue
@@ -160,7 +160,6 @@ class FMP {
         } else if (el.element.tagName === 'SVG') {
           let index = parseInt(el.element.getAttribute(FMP_TAG)!, 10)
           time = this.statusObserve[index].time
-
         }
       } else if (el.weight === 5) {
         if (el.element.tagName === 'VIDEO') {
@@ -189,7 +188,7 @@ class FMP {
 
   private calculateScore(
     element: Element,
-    list: Array<TagElement>
+    list: Array<TagElement>,
   ): TagElement {
     const { width, height } = element.getBoundingClientRect()
 
@@ -202,15 +201,14 @@ class FMP {
     })
 
     // 节点得分 (宽 * 高 * 权重 * 视图面积比例)
-    let weightScore = calculateAreaPrecent(element) ? width * height * weight * calculateAreaPrecent(element) : 0
+    let weightScore = calculateAreaPrecent(element)
+      ? width * height * weight * calculateAreaPrecent(element)
+      : 0
 
     let elementList = [{ element, weight, weightScore }]
 
     // 如果子节点总分大于节点得分，核心节点在子节点中
-    if (
-      weightScore < childScore ||
-      weightScore === 0
-    ) {
+    if (weightScore < childScore || weightScore === 0) {
       weightScore = childScore
       elementList = []
       list.forEach((el) => {
@@ -223,7 +221,7 @@ class FMP {
       weightScore,
       elementList,
       childList: list,
-      element
+      element,
     }
   }
 }

@@ -66,7 +66,7 @@ export const calculateAreaPrecent = (target: Element): number => {
 
   if (!width || !height) return 0
 
-  const  winR = window.innerWidth,
+  const winR = window.innerWidth,
     winB = window.innerHeight
 
   const viewWidth =
@@ -88,3 +88,6 @@ export const calculateAreaPrecent = (target: Element): number => {
 
   return Math.max((viewWidth * viewHeight) / (width * height), 0)
 }
+
+export const generateHash = (): string =>
+  Number(Math.random().toString().substr(3, length) + Date.now()).toString(36)

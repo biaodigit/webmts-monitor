@@ -1,10 +1,11 @@
-import IntegratedController from './integratedController'
+import IntegratedController from '../performance/integratedController'
+import SecurityObserve from '../security/observe'
 import IdleQueue from './idleQueue'
 import { trackerMetrics, logMetrics } from '../helpers/logPerf'
 import {
   supportPerformance,
   supportPerformanceObserver,
-  flatObjectInArr
+  flatObjectInArr,
 } from '../helpers/utils'
 import globalListener from '../helpers/globalListener'
 import { MonitorConfig, MetricsData } from '../types'
@@ -22,7 +23,7 @@ export default class {
   }
 
   public async integratedConfig(
-    config: MonitorConfig
+    config: MonitorConfig,
   ): Promise<MetricsData | void> {
     if (!supportPerformanceObserver())
       throw Error("browser doesn't support performanceObserver api")
@@ -39,12 +40,12 @@ export default class {
       timeToFirstByte,
       navigationTiming,
       log,
-      trackerHooks
+      trackerHooks,
     } = config
 
     this.defaultResult = {
       projectName,
-      version: version || ''
+      version: version || '',
     }
     const collectMetrics = []
 
@@ -82,9 +83,9 @@ export default class {
       const trackerCb = () => {
         logMetrics(
           Object.assign({}, this.defaultResult, {
-            data: flatObjectInArr(data)
+            data: flatObjectInArr(data),
           }),
-          trackerHooks
+          trackerHooks,
         )
       }
       this.pushTask(() => {
@@ -102,30 +103,34 @@ export default class {
   }
 
   public getFID(): Promise<MetricsData> {
-    return this.integratedController.getFirstInputDelay()
+    return this.transformResult(this.integratedController.getFirstInputDelay)
   }
 
   public getFMP(): Promise<MetricsData> {
-    return this.integratedController.getFirstMeaningFulPaint()
+    return this.transformResult(
+      this.integratedController.getFirstMeaningFulPaint,
+    )
   }
 
   public getTTI(): Promise<MetricsData> {
-    return this.integratedController.getTimeToInteractive()
+    return this.transformResult(this.integratedController.getTimeToInteractive)
   }
 
   public getTTFB(): Promise<MetricsData> {
-    return Promise.resolve(this.integratedController.getTimeToFirstByte())
+    return this.transformResult(this.integratedController.getTimeToFirstByte)
   }
 
   public getLCP(): Promise<MetricsData> {
-    return this.integratedController.getLargestContentFulPaint()
+    return this.transformResult(
+      this.integratedController.getLargestContentFulPaint,
+    )
   }
 
   public getNavTiming(): Promise<MetricsData> {
-    return Promise.resolve(this.integratedController.getNavigationTiming())
+    return this.transformResult(this.integratedController.getNavigationTiming)
   }
 
-  private async transformResult(fn: () => Promise<MetricsData>) {
+  private async transformResult(fn: () => MetricsData | Promise<MetricsData>) {
     let data = await fn()
     return Object.assign({}, this.defaultResult, data)
   }

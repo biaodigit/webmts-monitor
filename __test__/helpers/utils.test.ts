@@ -179,5 +179,18 @@ describe('helpers:util', () => {
       } as Element
       expect(calculateAreaPrecent(target)).toBe(0.25)
     })
+    test('should be element witdh be none',() => {
+      const target = {
+        getBoundingClientRect: () => ({
+          top: 650,
+          left: -50,
+          bottom: -50,
+          right: 650,
+          height: 100,
+          width: 0,
+        }),
+      } as Element
+      expect(calculateAreaPrecent(target)).toBe(0)
+    })
   })
 })
