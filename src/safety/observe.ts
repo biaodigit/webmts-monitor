@@ -1,12 +1,17 @@
 import inlineScan from './inline'
-import { SecurityConfig } from '../types/security'
+import hijack from './hijack'
+import { SafetyConfig } from '../types/safety'
 
 export default class {
   private whiteList: Array<string>
-  constructor(config: SecurityConfig) {
+  constructor(config: SafetyConfig) {
     this.whiteList = config.whiteList || []
 
     this.registerListener()
+
+    hijack.alertHook()
+
+    hijack.consoleHook()
   }
 
   registerListener() {
@@ -14,4 +19,6 @@ export default class {
       console.log(code)
     })
   }
+
+  hijack() {}
 }

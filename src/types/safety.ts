@@ -1,6 +1,6 @@
-export interface SecurityConfig {
+export interface SafetyConfig {
   xss: boolean | XSSOptions
-  whiteList: Array<string>
+  whiteList?: Array<string>
 }
 
 export interface XSSOptions {
@@ -10,6 +10,6 @@ export interface XSSOptions {
 
 export interface CSRFOptions {}
 
-export interface SecurityReport {
+export interface SafetyReport {
   url: string
 }

@@ -1,5 +1,5 @@
 import IntegratedController from '../performance/integratedController'
-import SecurityObserve from '../security/observe'
+import SafetyObserve from '../safety/observe'
 import IdleQueue from './idleQueue'
 import { trackerMetrics, logMetrics } from '../helpers/logPerf'
 import {
@@ -20,6 +20,8 @@ export default class {
 
     this.integratedController = new IntegratedController<MetricsData>()
     this.idleQueue = new IdleQueue()
+
+    const safetyInstance = new SafetyObserve({ xss: true })
   }
 
   public async integratedConfig(

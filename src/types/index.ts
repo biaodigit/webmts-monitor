@@ -1,5 +1,5 @@
 import { PerformanceConfig } from './performance'
-import { SecurityConfig } from './security'
+import { SafetyConfig } from './safety'
 
 export interface Monitor {
   integratedConfig(config: MonitorConfig): MonitorPromise
@@ -27,7 +27,7 @@ export interface PerformanceEntryPolyfill extends PerformanceEntry {
 }
 
 export type MonitorConfig = PerformanceConfig &
-  SecurityConfig & {
+  SafetyConfig & {
     projectName: string
     version?: number | string
     log?: boolean
