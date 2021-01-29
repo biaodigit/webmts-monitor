@@ -20,3 +20,5 @@ export type Metrics =
   | 'tcpConnectTime'
   | 'dnsLookupTime'
   | 'whiteScreenTime'
+
+export type MetricsData = { [key in Metrics]?: number }

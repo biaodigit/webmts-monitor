@@ -1,8 +1,9 @@
-import { TrackerConfig, MetricsData, Metrics } from '../types'
+import { PerformanceReport } from '../types'
+import { MetricsData, Metrics } from '../types/performance'
 
 export const trackerMetrics = (
-  config: TrackerConfig,
-  trackerCb: (config: TrackerConfig) => void,
+  config: PerformanceReport,
+  trackerCb: (config: PerformanceReport) => void,
 ) => {
   const { projectName, version = 0, data = {} } = config
   if (trackerCb) {
@@ -11,8 +12,8 @@ export const trackerMetrics = (
 }
 
 export const logMetrics = (
-  config: TrackerConfig,
-  cb: (config: TrackerConfig) => void,
+  config: PerformanceReport,
+  cb: (config: PerformanceReport) => void,
 ) => {
   const { data } = config
   trackerMetrics(config, cb)

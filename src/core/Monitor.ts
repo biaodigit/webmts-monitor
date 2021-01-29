@@ -1,17 +1,19 @@
 import IntegratedController from '../performance/integratedController'
 import SafetyObserve from '../safety/observe'
 import IdleQueue from './idleQueue'
-import { trackerMetrics, logMetrics } from '../helpers/logPerf'
+import { logMetrics } from '../helpers/logPerf'
 import {
   supportPerformance,
   supportPerformanceObserver,
   flatObjectInArr,
 } from '../helpers/utils'
 import globalListener from '../helpers/globalListener'
-import { MonitorConfig, MetricsData } from '../types'
+import { MonitorConfig } from '../types'
+import { MetricsData } from '../types/performance'
 
 export default class {
   private integratedController: IntegratedController<MetricsData>
+  private safetyInstance?: SafetyObserve
   private idleQueue: IdleQueue
   private defaultResult?: { projectName: string; version: number | string }
   constructor() {
@@ -20,8 +22,6 @@ export default class {
 
     this.integratedController = new IntegratedController<MetricsData>()
     this.idleQueue = new IdleQueue()
-
-    const safetyInstance = new SafetyObserve({ xss: true })
   }
 
   public async integratedConfig(
@@ -41,8 +41,8 @@ export default class {
       largestContentfulPaint,
       timeToFirstByte,
       navigationTiming,
-      log,
-      trackerHooks,
+      perfTracker,
+      safetyTracker,
     } = config
 
     this.defaultResult = {
@@ -81,13 +81,13 @@ export default class {
 
     let data = await Promise.all(collectMetrics)
 
-    if (trackerHooks) {
+    if (perfTracker) {
       const trackerCb = () => {
         logMetrics(
           Object.assign({}, this.defaultResult, {
             data: flatObjectInArr(data),
           }),
-          trackerHooks,
+          perfTracker,
         )
       }
       this.pushTask(() => {
@@ -97,6 +97,13 @@ export default class {
       globalListener(trackerCb)
     } else {
       return flatObjectInArr(data)
+    }
+
+    if (safetyTracker) {
+      this.safetyInstance = new SafetyObserve({
+        xss: true,
+        trackerCb: safetyTracker,
+      })
     }
   }
 

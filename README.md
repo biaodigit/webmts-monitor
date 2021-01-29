@@ -32,7 +32,7 @@ monitor({
 ```js
 monitor({
   firstContentfulPaint: true
-  trackerHooks: ({data}) => {
+  perfTracker: ({data}) => {
     console.log(data)
   }
 });
@@ -43,7 +43,7 @@ monitor({
 ```js
 monitor({
   firstContentfulPaint: true,
-}).then(console.log);
+}).then(console.log)
 ```
 
 **开放式 api**
@@ -58,7 +58,7 @@ monitor({
 - monitor.getNavTiming
 
 ```js
-monitor.getFCP().then(console.log);
+monitor.getFCP().then(console.log)
 ```
 
 ## 请求参数
@@ -90,7 +90,7 @@ monitor.getFCP().then(console.log);
   navigationTiming: false,
 
   // 追踪钩子
-  trackerHooks: ({data}) => {
+  perfTracker: ({data}) => {
     // ...
   }
 }

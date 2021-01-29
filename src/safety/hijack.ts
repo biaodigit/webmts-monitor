@@ -10,7 +10,6 @@ export default {
     let _alert = window.alert
     window.alert = (...args: any[]) => {
       _alert(...args)
-      // console.log('safety')
       // [native code]
     }
   },
@@ -19,11 +18,22 @@ export default {
     for (let key in _console) {
       window.console[key] = (...args: any[]) => {
         _console[key](...args)
-        alert('safety')
         // [native code]
       }
     }
   },
-  promptHook: function (...args: any[]) {},
-  confirmHook: function (...args: any[]) {},
+  promptHook: function (...args: any[]) {
+    let _prompt = window.prompt
+    window.prompt = (...args: any[]): string | null => {
+      // [native code]
+      return _prompt(...args)
+    }
+  },
+  confirmHook: function (...args: any[]) {
+    let _confirm = window.confirm
+    window.confirm = (...args: any[]): boolean => {
+      // [native code]
+      return _confirm(...args)
+    }
+  },
 }

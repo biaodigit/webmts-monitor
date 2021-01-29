@@ -1,5 +1,5 @@
-import { PerformanceConfig } from './performance'
-import { SafetyConfig } from './safety'
+import { PerformanceConfig, MetricsData } from './performance'
+import { SafetyConfig, SafetyReport } from './safety'
 
 export interface Monitor {
   integratedConfig(config: MonitorConfig): MonitorPromise
@@ -31,14 +31,15 @@ export type MonitorConfig = PerformanceConfig &
     projectName: string
     version?: number | string
     log?: boolean
-    trackerHooks?(config: TrackerConfig): void
+    perfTracker?(config: PerformanceReport): void
+    safetyTracker?(config: SafetyReport): void
   }
 
 export interface MonitorIntance extends Monitor {
   (config: MonitorConfig): Promise<MetricsData>
 }
 
-export interface TrackerConfig {
+export interface PerformanceReport {
   projectName: string
   version?: string | number
   data?: MetricsData
@@ -48,17 +49,3 @@ export interface LogOptions {
   metricName: string
   duration: number
 }
-
-export type Metrics =
-  | 'firstPaint'
-  | 'firstContentFulPaint'
-  | 'firstInputDelay'
-  | 'firstMeaningFulPaint'
-  | 'timeToInteractive'
-  | 'largestContentFulPaint'
-  | 'timeToFirstByte'
-  | 'tcpConnectTime'
-  | 'dnsLookupTime'
-  | 'whiteScreenTime'
-
-export type MetricsData = { [key in Metrics]?: number }

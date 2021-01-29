@@ -1,15 +1,9 @@
 import { generateHash } from '../helpers/utils'
+import { SafetyReport } from '../types/safety'
 
-type callback = (code: string) => void
+type callback = (config: SafetyReport) => void
 
-const eventList = [
-  'onclick',
-  'onchange',
-  // 'onfocus',
-  'ontouchstart',
-  'onblur',
-  'ondrag',
-]
+const eventList = ['onclick', 'onchange', 'ontouchstart', 'onblur', 'ondrag']
 
 const contentRegex = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gim
 
@@ -28,7 +22,15 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
   const code = ele.getAttribute(eventName)
   if (code && contentRegex.test(code)) {
     ele.setAttribute(eventName, '')
-    cb(code)
+    cb({
+      id: '',
+      url: '',
+      code,
+      type: 'xss',
+      ua: '',
+      cookies: '',
+      time: new Date(),
+    })
   }
 
   if (
@@ -37,9 +39,16 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
     (ele as HTMLAnchorElement).protocol === 'javascript:'
   ) {
     const code = (ele as HTMLAnchorElement).href.substr(11)
-    console.log(code)
     ;(ele as HTMLAnchorElement).href = 'javascript:void(0)'
-    cb(code)
+    cb({
+      id: '',
+      url: '',
+      code,
+      type: 'xss',
+      ua: '',
+      cookies: '',
+      time: new Date(),
+    })
   }
 
   scan(ele.parentNode as Element, eventName, cb)
@@ -49,9 +58,7 @@ function eventHook(eventName: string, cb: callback) {
   document.addEventListener(
     eventName.substr(2),
     (e) => {
-      // console.log(e)
       if (e.target) {
-        // console.log(e.target)
         scan(e.target as Element, eventName, cb)
       }
     },
@@ -60,14 +67,7 @@ function eventHook(eventName: string, cb: callback) {
 }
 
 export default function (cb: callback) {
-  for (let k in document) {
-    if (/^on./.test(k)) {
-      // eventHook(k, cb)
-      // console.log(k)
-    }
-  }
   for (let k of eventList) {
     eventHook(k, cb)
   }
-  // eventHook('onclick', cb)
 }

@@ -1,7 +1,8 @@
 import observe from './observe'
 import ttiInstance from './tti'
 import fmpInstance from './fmp'
-import { PerformanceEntryPolyfill, MetricsData } from '../types'
+import { PerformanceEntryPolyfill } from '../types'
+import { MetricsData } from '../types/performance'
 
 interface PerformanceNavigationEntry extends PerformanceEntry {
   loadEventStart: number
