@@ -49,6 +49,14 @@ export default class {
       projectName,
       version: version || '',
     }
+
+    if (safetyTracker) {
+      this.safetyInstance = new SafetyObserve({
+        xss: true,
+        trackerCb: safetyTracker,
+      })
+    }
+
     const collectMetrics = []
 
     if (firstPaint || firstContentfulPaint) {
@@ -98,13 +106,6 @@ export default class {
     } else {
       return flatObjectInArr(data)
     }
-
-    if (safetyTracker) {
-      this.safetyInstance = new SafetyObserve({
-        xss: true,
-        trackerCb: safetyTracker,
-      })
-    }
   }
 
   public getFCP(): Promise<MetricsData> {
@@ -139,8 +140,10 @@ export default class {
     return this.transformResult(this.integratedController.getNavigationTiming)
   }
 
+  public safteyTracker() {}
+
   private async transformResult(fn: () => MetricsData | Promise<MetricsData>) {
-    let data = await fn()
+    let data = await fn.call(this.integratedController)
     return Object.assign({}, this.defaultResult, data)
   }
 

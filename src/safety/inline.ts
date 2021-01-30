@@ -3,7 +3,14 @@ import { SafetyReport } from '../types/safety'
 
 type callback = (config: SafetyReport) => void
 
-const eventList = ['onclick', 'onchange', 'ontouchstart', 'onblur', 'ondrag']
+const eventList = [
+  'onclick',
+  'onmouseover',
+  'onchange',
+  'ontouchstart',
+  'onblur',
+  'ondrag',
+]
 
 const contentRegex = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gim
 
@@ -24,29 +31,29 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
     ele.setAttribute(eventName, '')
     cb({
       id: '',
-      url: '',
+      url: location.href,
       code,
       type: 'xss',
       ua: '',
-      cookies: '',
+      cookies: document.cookie,
       time: new Date(),
     })
   }
 
   if (
     isClick &&
-    ele.tagName === 'a' &&
+    ele.tagName.toLowerCase() === 'a' &&
     (ele as HTMLAnchorElement).protocol === 'javascript:'
   ) {
     const code = (ele as HTMLAnchorElement).href.substr(11)
     ;(ele as HTMLAnchorElement).href = 'javascript:void(0)'
     cb({
       id: '',
-      url: '',
+      url: location.href,
       code,
       type: 'xss',
       ua: '',
-      cookies: '',
+      cookies: document.cookie,
       time: new Date(),
     })
   }
