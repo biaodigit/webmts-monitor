@@ -7,6 +7,13 @@ export interface PerformanceConfig {
   largestContentfulPaint?: boolean
   timeToFirstByte?: boolean
   navigationTiming?: boolean
+  perfTracker?(config: PerformanceReport): void
+}
+
+export interface PerformanceReport {
+  projectName: string
+  version?: string | number
+  data?: MetricsData
 }
 
 export type Metrics =

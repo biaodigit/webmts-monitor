@@ -31,18 +31,10 @@ export type MonitorConfig = PerformanceConfig &
     projectName: string
     version?: number | string
     log?: boolean
-    perfTracker?(config: PerformanceReport): void
-    safetyTracker?(config: SafetyReport): void
   }
 
 export interface MonitorIntance extends Monitor {
   (config: MonitorConfig): Promise<MetricsData>
-}
-
-export interface PerformanceReport {
-  projectName: string
-  version?: string | number
-  data?: MetricsData
 }
 
 export interface LogOptions {

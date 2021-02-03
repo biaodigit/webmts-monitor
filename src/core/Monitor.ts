@@ -41,6 +41,7 @@ export default class {
       largestContentfulPaint,
       timeToFirstByte,
       navigationTiming,
+      whiteList,
       perfTracker,
       safetyTracker,
     } = config
@@ -52,8 +53,9 @@ export default class {
 
     if (safetyTracker) {
       this.safetyInstance = new SafetyObserve({
+        whiteList,
         xss: true,
-        trackerCb: safetyTracker,
+        safetyTracker,
       })
     }
 

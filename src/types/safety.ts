@@ -1,7 +1,7 @@
 export interface SafetyConfig {
   xss: boolean | XSSOptions
   whiteList?: Array<string>
-  trackerCb: (config: SafetyReport) => void
+  safetyTracker?(config: SafetyReport): void
 }
 
 export interface XSSOptions {

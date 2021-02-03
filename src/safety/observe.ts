@@ -5,17 +5,17 @@ import { SafetyConfig, SafetyReport } from '../types/safety'
 export default class {
   private whiteList: Array<string>
   constructor(config: SafetyConfig) {
-    const { xss, whiteList, trackerCb } = config
-    this.whiteList = config.whiteList || []
+    const { xss, whiteList = [], safetyTracker } = config
+    this.whiteList = whiteList
 
-    this.registerListener(trackerCb)
+    this.registerListener(safetyTracker!)
 
-    hijack.alertHook()
-    hijack.consoleHook()
+    // hijack.alertHook()
+    // hijack.consoleHook()
   }
 
   registerListener(trackerCb: (config: SafetyReport) => void) {
-    inlineScan(trackerCb)
+    inlineScan(this.whiteList, trackerCb)
   }
 
   hijack() {}

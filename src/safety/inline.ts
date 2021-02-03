@@ -14,7 +14,12 @@ const eventList = [
 
 const contentRegex = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/gim
 
-function scan(ele: Element | null, eventName: string, cb: callback) {
+function scan(
+  ele: Element | null,
+  eventName: string,
+  whiteList: string[],
+  cb: callback,
+) {
   if (!ele) return
 
   if (ele.nodeType !== 1) return
@@ -27,10 +32,16 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
 
   const isClick = eventName === 'onclick'
   const code = ele.getAttribute(eventName)
-  if (code && contentRegex.test(code)) {
+
+  if (
+    code &&
+    contentRegex.test(code) &&
+    code.match(contentRegex) &&
+    !whiteList.includes(code.match(contentRegex)![0])
+  ) {
     ele.setAttribute(eventName, '')
     cb({
-      id: '',
+      id: generateHash(),
       url: location.href,
       code,
       type: 'xss',
@@ -48,7 +59,7 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
     const code = (ele as HTMLAnchorElement).href.substr(11)
     ;(ele as HTMLAnchorElement).href = 'javascript:void(0)'
     cb({
-      id: '',
+      id: generateHash(),
       url: location.href,
       code,
       type: 'xss',
@@ -58,23 +69,23 @@ function scan(ele: Element | null, eventName: string, cb: callback) {
     })
   }
 
-  scan(ele.parentNode as Element, eventName, cb)
+  scan(ele.parentNode as Element, eventName, whiteList, cb)
 }
 
-function eventHook(eventName: string, cb: callback) {
+function eventHook(eventName: string, whiteList: string[], cb: callback) {
   document.addEventListener(
     eventName.substr(2),
     (e) => {
       if (e.target) {
-        scan(e.target as Element, eventName, cb)
+        scan(e.target as Element, eventName, whiteList, cb)
       }
     },
     true,
   )
 }
 
-export default function (cb: callback) {
+export default function (whiteList: string[], cb: callback) {
   for (let k of eventList) {
-    eventHook(k, cb)
+    eventHook(k, whiteList, cb)
   }
 }
