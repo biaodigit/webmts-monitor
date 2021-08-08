@@ -5,7 +5,7 @@ type callback = (config: SafetyReport) => void
 
 const eventList = [
   'onclick',
-  'onmouseover',
+  // 'onmouseover',
   'onchange',
   'ontouchstart',
   'onblur',
@@ -57,7 +57,7 @@ function scan(
     (ele as HTMLAnchorElement).protocol === 'javascript:'
   ) {
     const code = (ele as HTMLAnchorElement).href.substr(11)
-    ;(ele as HTMLAnchorElement).href = 'javascript:void(0)'
+      ; (ele as HTMLAnchorElement).href = 'javascript:void(0)'
     cb({
       id: generateHash(),
       url: location.href,

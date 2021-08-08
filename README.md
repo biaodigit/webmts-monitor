@@ -4,7 +4,7 @@ web 指标监控
 
 ## 如何使用
 
-```
+```js
 npm i webmts-monitor --save
 ```
 

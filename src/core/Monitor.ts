@@ -7,7 +7,6 @@ import {
   supportPerformanceObserver,
   flatObjectInArr,
 } from '../helpers/utils'
-import globalListener from '../helpers/globalListener'
 import { MonitorConfig } from '../types'
 import { MetricsData } from '../types/performance'
 
@@ -92,19 +91,15 @@ export default class {
     let data = await Promise.all(collectMetrics)
 
     if (perfTracker) {
-      const trackerCb = () => {
+      this.pushTask(() => {
         logMetrics(
           Object.assign({}, this.defaultResult, {
             data: flatObjectInArr(data),
           }),
           perfTracker,
         )
-      }
-      this.pushTask(() => {
-        trackerCb()
       })
 
-      globalListener(trackerCb)
     } else {
       return flatObjectInArr(data)
     }
@@ -142,7 +137,7 @@ export default class {
     return this.transformResult(this.integratedController.getNavigationTiming)
   }
 
-  public safteyTracker() {}
+  public safteyTracker() { }
 
   private async transformResult(fn: () => MetricsData | Promise<MetricsData>) {
     let data = await fn.call(this.integratedController)

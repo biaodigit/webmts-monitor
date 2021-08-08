@@ -1,4 +1,4 @@
-import { PerformanceReport } from '../types'
+import { PerformanceReport } from '../types/performance'
 import { MetricsData, Metrics } from '../types/performance'
 
 export const trackerMetrics = (

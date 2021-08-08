@@ -1,6 +1,8 @@
 import { PerformanceConfig, MetricsData } from './performance'
 import { SafetyConfig, SafetyReport } from './safety'
 
+type MonitorPromise = Promise<MetricsData>
+
 export interface Monitor {
   integratedConfig(config: MonitorConfig): MonitorPromise
 
@@ -18,8 +20,6 @@ export interface Monitor {
 
   getNavTiming(): MonitorPromise
 }
-
-export interface MonitorPromise extends Promise<MetricsData> {}
 
 export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly processingStart?: DOMHighResTimeStamp

@@ -91,12 +91,12 @@ class FMP {
       return
     }
 
-    let els = this.filterEls(maxWeightEle!.elementList)
+    let els = this.filterEls((maxWeightEle as TagElement).elementList)
 
     this.resolveFn!(this.getElementTiming(els))
   }
 
-  private activeMark() {}
+  private activeMark() { }
 
   private passiveMark() {
     this.getFirstSnapShot()
