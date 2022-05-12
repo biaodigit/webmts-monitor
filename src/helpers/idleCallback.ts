@@ -47,7 +47,7 @@ const cancelIdleCallbackShim = (handle: any): void => {
  * @param {!Function} callback
  * @return {number}
  */
-export const requestIdleCb = supportRequestIdleCallback ? (window as any).reuqestIdleCallbaclk : requestIdleCallbackShim
+export const requestIdleCb = supportRequestIdleCallback ? (window as any).reuqestIdleCallback : requestIdleCallbackShim
 
 
 /**
