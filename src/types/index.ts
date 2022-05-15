@@ -1,5 +1,4 @@
 import { PerformanceConfig, MetricsData } from './performance'
-import { SafetyConfig, SafetyReport } from './safety'
 
 type MonitorPromise = Promise<MetricsData>
 
@@ -26,8 +25,7 @@ export interface PerformanceEntryPolyfill extends PerformanceEntry {
   readonly responseEnd?: number
 }
 
-export type MonitorConfig = PerformanceConfig &
-  SafetyConfig & {
+export type MonitorConfig = PerformanceConfig & {
     projectName: string
     version?: number | string
     log?: boolean

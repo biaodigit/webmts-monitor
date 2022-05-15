@@ -1,5 +1,4 @@
 import IntegratedController from '../performance/integratedController'
-import SafetyObserve from '../safety/observe'
 import IdleQueue from './idleQueue'
 import { logMetrics } from '../helpers/logPerf'
 import {
@@ -12,7 +11,6 @@ import { MetricsData } from '../types/performance'
 
 export default class {
   private integratedController: IntegratedController<MetricsData>
-  private safetyInstance?: SafetyObserve
   private idleQueue: IdleQueue
   private defaultResult?: { projectName: string; version: number | string }
   constructor() {
@@ -40,22 +38,12 @@ export default class {
       largestContentfulPaint,
       timeToFirstByte,
       navigationTiming,
-      whiteList,
       perfTracker,
-      safetyTracker,
     } = config
 
     this.defaultResult = {
       projectName,
       version: version || '',
-    }
-
-    if (safetyTracker) {
-      this.safetyInstance = new SafetyObserve({
-        whiteList,
-        xss: true,
-        safetyTracker,
-      })
     }
 
     const collectMetrics = []
