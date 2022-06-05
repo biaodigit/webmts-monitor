@@ -16,7 +16,7 @@ class IdleDeadline {
     }
 }
 
-const supportRequestIdleCallback = typeof (window as any).reuqestIdleCallbaclk === 'function'
+const supportRequestIdleCallback = typeof (window as any).requestIdleCallback === 'function'
 
 /**
  * A minimal shim for the requestIdleCallback function. This accepts a
@@ -47,8 +47,7 @@ const cancelIdleCallbackShim = (handle: any): void => {
  * @param {!Function} callback
  * @return {number}
  */
-export const requestIdleCb = supportRequestIdleCallback ? (window as any).reuqestIdleCallback : requestIdleCallbackShim
-
+export const requestIdleCb = supportRequestIdleCallback ? (window as any).requestIdleCallback : requestIdleCallbackShim
 
 /**
  * The native `cancelIdleCallback()` function or `cancelIdleCallbackShim()`

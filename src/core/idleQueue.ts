@@ -50,10 +50,9 @@ class IdleQueue {
     private runTask(deadline:IdleDeadline) {
         this.cancelScheduleRun()
 
-        console.log(deadline.timeRemaining())
         if (!this.processing) {
             this.processing = true
-            while (this.hasPendingTasks() && !this.shouldYield(deadline, this.defaultMinTaskTime)) {
+            while (this.hasPendingTasks() && deadline && (deadline.timeRemaining() > this.defaultMinTaskTime || deadline.didTimeout)) {
                 const { task } = this.taskQueue.shift()
                 task()
             }
