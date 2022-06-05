@@ -39,3 +39,9 @@ export interface LogOptions {
   metricName: string
   duration: number
 }
+
+export interface IdleDeadline {
+  timeRemaining: () => number
+  didTimeout: boolean
+  initTime: number
+}

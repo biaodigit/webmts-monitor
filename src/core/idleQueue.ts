@@ -1,5 +1,6 @@
 import { requestIdleCb, cancelIdleCb } from '../helpers/idleCallback'
 import { now } from '../helpers/utils'
+import { IdleDeadline } from '../types' 
 
 const DEFAULT_MIN_TASK_TIME = 0;
 
@@ -46,9 +47,10 @@ class IdleQueue {
         this.idleCallbackHandle = null
     }
 
-    private runTask(deadline = undefined) {
+    private runTask(deadline:IdleDeadline) {
         this.cancelScheduleRun()
 
+        console.log(deadline.timeRemaining())
         if (!this.processing) {
             this.processing = true
             while (this.hasPendingTasks() && !this.shouldYield(deadline, this.defaultMinTaskTime)) {
@@ -67,7 +69,7 @@ class IdleQueue {
         return this.taskQueue.length > 0
     }
 
-    private shouldYield(deadline: any, minTaskTime: number): boolean {
+    private shouldYield(deadline: IdleDeadline, minTaskTime: number): boolean {
         return deadline && deadline.timeRemaining() <= minTaskTime
     }
 }
