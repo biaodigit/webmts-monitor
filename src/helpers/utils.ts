@@ -66,25 +66,22 @@ export const calculateAreaPrecent = (target: Element): number => {
 
   if (!width || !height) return 0
 
-  const winR = window.innerWidth,
-    winB = window.innerHeight
-
   const viewWidth =
     left >= 0 && right >= 0
       ? width
       : left < 0 && right >= 0
-      ? winR - right
+      ? right
       : left >= 0 && right < 0
-      ? winR - left
-      : width
+      ? left
+      : 0
   const viewHeight =
     top >= 0 && bottom >= 0
       ? height
       : top < 0 && bottom >= 0
-      ? winB - bottom
+      ? bottom
       : top >= 0 && bottom < 0
-      ? winB - top
-      : height
+      ? top
+      : 0
 
   return Math.max((viewWidth * viewHeight) / (width * height), 0)
 }

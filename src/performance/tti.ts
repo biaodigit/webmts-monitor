@@ -1,3 +1,5 @@
+import observe from './observe'
+
 type Task = Array<{ start: number; end: number }>
 
 class TTI {
@@ -33,6 +35,18 @@ class TTI {
     })
   }
 
+  private startSchedulingTimerTasks() {
+    // todo
+    console.log('_incompleteRequestStarts', this.completeRequest)
+    console.log('_networkRequests', this.networkRequests)
+
+    const longTaskEnd = this.longtask.length  ? this.longtask[this.longtask.length - 1].end : 0
+
+    const lastKnownNetworkEnd = this.computedLastKnownNetWorks([...this.completeRequest.values()], this.networkRequests)
+
+    this.recheduleTimer(Math.max(lastKnownNetworkEnd + 5000, longTaskEnd))
+  }
+
   private registerListener() {
     this.patchXMLHTTPRequest(
       this.beforeInitRequestCb.bind(this),
@@ -46,28 +60,15 @@ class TTI {
     this.registerPerformanceObserver()
   }
 
-  private registerPerformanceObserver() {
-    this.ob = new PerformanceObserver(
-      (entryList: PerformanceObserverEntryList) => {
-        let entries = entryList.getEntries()
-        for (let entry of entries) {
-          if (entry.entryType === 'longtask') {
-            this.longTaskFinishedCallback(entry)
-          } else if (entry.entryType === 'resource') {
-            this.networkFinishedCallback(entry as PerformanceResourceTiming)
-          }
-        }
+  private async registerPerformanceObserver() {
+    const { entries } = await observe(['longtask', 'resource'])
+    for (let entry of entries) {
+      if (entry.entryType === 'longtask') {
+        this.longTaskFinishedCallback(entry)
+      } else if (entry.entryType === 'resource') {
+        this.networkFinishedCallback(entry as PerformanceResourceTiming)
       }
-    )
-
-    this.ob.observe({ entryTypes: ['longtask', 'resource'] })
-  }
-
-  private startSchedulingTimerTasks() {
-    // todo
-    console.log('_incompleteRequestStarts', this.completeRequest)
-    console.log('_networkRequests', this.networkRequests)
-    this.recheduleTimer(5000)
+    }
   }
 
   private recheduleTimer(earliestTime: number) {
@@ -101,7 +102,7 @@ class TTI {
       start: performanceEntry.startTime,
       end: taskEndTime
     })
-    this.recheduleTimer(taskEndTime + 5000)
+    // this.recheduleTimer(taskEndTime + 5000)
   }
 
   private networkFinishedCallback(performanceEntry: PerformanceResourceTiming) {
@@ -109,6 +110,7 @@ class TTI {
       start: performanceEntry.fetchStart,
       end: performanceEntry.responseEnd
     })
+    // this.recheduleTimer(this.computedLastKnownNetWorks([...this.completeRequest.values()], this.networkRequests) + 5000)
   }
 
   private patchXMLHTTPRequest(
@@ -151,6 +153,7 @@ class TTI {
   }
 
   private computedLastKnownNetWorks(completeRequestValues: Array<number>, networkRequests: Task): number {
+    if(completeRequestValues.length > 2) return performance.now()
     let queue = []
     for (let request of networkRequests) {
       queue.push({
