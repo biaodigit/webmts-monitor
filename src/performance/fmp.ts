@@ -5,7 +5,7 @@ interface TagElement {
   element: Element
   weightScore: number
   childList: Array<TagElement>
-  elementList: Array<Els>
+  elementArr: Array<Els>
 }
 
 interface Els {
@@ -91,7 +91,7 @@ class FMP {
       return
     }
 
-    let els = this.filterEls((maxWeightEle as TagElement).elementList)
+    let els = this.filterEls((maxWeightEle as TagElement).elementArr)
 
     this.resolveFn!(this.getElementTiming(els))
   }
@@ -127,8 +127,8 @@ class FMP {
       const child = children[i]
       if (!child.getAttribute(FMP_TAG)) continue
 
-      const elementList = this.getTreeWeight(child)
-      if (elementList!.weightScore) list.push(elementList!)
+      const elementArr = this.getTreeWeight(child)
+      if (elementArr!.weightScore) list.push(elementArr!)
     }
     return this.calculateScore(element, list)
   }
@@ -205,21 +205,21 @@ class FMP {
       ? width * height * weight * calculateAreaPrecent(element)
       : 0
 
-    let elementList = [{ element, weight, weightScore }]
+    let elementArr = [{ element, weight, weightScore }]
 
     // 如果子节点总分大于节点得分，核心节点在子节点中
     if (weightScore < childScore || weightScore === 0) {
       weightScore = childScore
-      elementList = []
+      elementArr = []
       list.forEach((el) => {
-        elementList = elementList.concat(el.elementList)
+        elementArr = elementArr.concat(el.elementArr)
       })
     }
 
     element.setAttribute('fmp_weight', `${weightScore}`)
     return {
       weightScore,
-      elementList,
+      elementArr,
       childList: list,
       element,
     }

@@ -67,10 +67,10 @@ describe('helpers:util', () => {
         getBoundingClientRect: () => ({
           top: 100,
           left: 100,
-          bottom: 500,
-          right: 500,
-          height: 100,
-          width: 100,
+          bottom: 600,
+          right: 600,
+          height: 500,
+          width: 500,
         }),
       } as Element
       expect(calculateAreaPrecent(target)).toBe(1)
@@ -79,115 +79,115 @@ describe('helpers:util', () => {
       const target = {
         getBoundingClientRect: () => ({
           top: 100,
-          left: -50,
-          bottom: 500,
-          right: 650,
-          height: 100,
-          width: 100,
+          left: -100,
+          bottom: 600,
+          right: 400,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.5)
+      expect(calculateAreaPrecent(target)).toBe(0.8)
     })
     test('should be element is beyond left top area',()=>{
       const target = {
         getBoundingClientRect: () => ({
-          top: -50,
-          left: -50,
-          bottom: 650,
-          right: 650,
-          height: 100,
-          width: 100,
+          top: -100,
+          left: -100,
+          bottom: 400,
+          right: 400,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.25)
+      expect(calculateAreaPrecent(target)).toBe(0.64)
     })
     test('should be element is beyond top area',() => {
       const target = {
         getBoundingClientRect: () => ({
-          top: -50,
+          top: -100,
           left: 100,
-          bottom: 650,
+          bottom: 400,
           right: 600,
-          height: 100,
-          width: 100,
+          height: 500,
+          width: 500,
         })
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.5)
+      expect(calculateAreaPrecent(target)).toBe(0.8)
     })
     test('should be element is beyond right area',()=>{
       const target = {
         getBoundingClientRect: () => ({
           top: 100,
-          left: 650,
-          bottom: 650,
-          right: -50,
-          height: 100,
-          width: 100,
+          left: 600,
+          bottom: 600,
+          right: 1100,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.5)
+      expect(calculateAreaPrecent(target)).toBe(0.2)
     })
     test('should be element is beyond right top area',()=>{
       const target = {
         getBoundingClientRect: () => ({
-          top: -50,
-          left: 650,
-          bottom: 650,
-          right: -50,
-          height: 100,
-          width: 100,
+          top: -100,
+          left: 600,
+          bottom: 400,
+          right: 1100,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.25)
+      expect(calculateAreaPrecent(target)).toBe(0.16)
     })
     test('should be element is beyond rigth bottom area',() => {
       const target = {
         getBoundingClientRect: () => ({
-          top: 650,
-          left: 650,
-          bottom: -50,
-          right: -50,
-          height: 100,
-          width: 100,
+          top: 600,
+          left: 600,
+          bottom: 1100,
+          right: 1100,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.25)
+      expect(calculateAreaPrecent(target)).toBe(0.04)
     })
     test('should be element is beyond bottom area',() => {
       const target = {
         getBoundingClientRect: () => ({
-          top: 650,
-          left: 600,
-          bottom: -50,
-          right: 100,
-          height: 100,
-          width: 100,
+          top: 600,
+          left: 100,
+          bottom: 1100,
+          right: 600,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.5)
+      expect(calculateAreaPrecent(target)).toBe(0.2)
     })
     test('should be element is beyond left bottom area',() => {
       const target = {
         getBoundingClientRect: () => ({
-          top: 650,
-          left: -50,
-          bottom: -50,
-          right: 650,
-          height: 100,
-          width: 100,
+          top: 600,
+          left: -100,
+          bottom: 1100,
+          right: 400,
+          height: 500,
+          width: 500,
         }),
       } as Element
-      expect(calculateAreaPrecent(target)).toBe(0.25)
+      expect(calculateAreaPrecent(target)).toBe(0.16)
     })
     test('should be element witdh be none',() => {
       const target = {
         getBoundingClientRect: () => ({
-          top: 650,
-          left: -50,
-          bottom: -50,
-          right: 650,
-          height: 100,
-          width: 0,
+          top: -600,
+          left: -600,
+          bottom: -100,
+          right: -100,
+          height: 500,
+          width: 500,
         }),
       } as Element
       expect(calculateAreaPrecent(target)).toBe(0)
